@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>B'FAST 2 NIGHT — Malta's Nightlife, Engineered</title>
+<meta name="description" content="B'Fast2Night Entertainment — Malta's premium events promoter. Upcoming events, tickets and VIP table bookings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#060608;
+  --ink:#0c0c11;
+  --panel:#101016;
+  --line:rgba(242,240,235,.12);
+  --white:#f2f0eb;
+  --dim:#85858f;
+  --red:#ff2b38;
+  --ember:#ff7a2f;
+  --nav-h:72px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+html,body{background:var(--black);color:var(--white);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+::selection{background:var(--red);color:var(--black)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.mono{font-family:'Manrope',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+.mono.red{color:var(--red)}
+
+/* ---------- WEBGL CANVAS ---------- */
+#webgl{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ---------- GRAIN ---------- */
+.grain{position:fixed;inset:-50%;z-index:60;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 8s steps(10) infinite}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-8%)}30%{transform:translate(4%,6%)}50%{transform:translate(-7%,3%)}70%{transform:translate(6%,-4%)}90%{transform:translate(-3%,7%)}}
+
+/* ---------- LOADER ---------- */
+#loader{position:fixed;inset:0;z-index:100;background:var(--black);overflow:hidden;will-change:transform}
+#loader.done{visibility:hidden;pointer-events:none}
+#loader .l-brand{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+#loader .l-bn{font-family:'Syne',sans-serif;font-size:clamp(16px,2.6vw,24px);letter-spacing:.42em;text-indent:.42em;white-space:nowrap}
+#loader .l-bn span{color:var(--red)}
+#loader .l-sub{font-size:10px;letter-spacing:.34em;text-indent:.34em}
+#loader .l-line{position:absolute;left:50%;top:54%;transform:translateX(-50%);width:min(440px,72vw);height:1px;background:rgba(242,240,235,.10)}
+#loader .l-line i{position:absolute;left:0;top:0;height:100%;width:100%;background:var(--white);transform:scaleX(0);transform-origin:left}
+#loader .l-count{position:absolute;right:2vw;bottom:-.14em;font-family:'Syne',sans-serif;font-size:clamp(130px,24vw,320px);line-height:.85;color:var(--white);opacity:.95;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+@media(max-width:640px){#loader .l-count{right:50%;transform:translateX(50%)}}
+
+/* ---------- NAV ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,48px);mix-blend-mode:difference}
+nav .logo{font-family:'Syne',sans-serif;font-size:17px;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+nav .logo .peace{color:var(--red)}
+nav .links{display:flex;gap:28px}
+nav .links a{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;position:relative;padding:6px 0}
+nav .links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--white);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.65,0,.35,1)}
+nav .links a:hover::after{transform:scaleX(1);transform-origin:left}
+@media(max-width:640px){nav .links{gap:16px}nav .links a:nth-child(2){display:none}nav .logo{font-size:13px}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;z-index:2;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 20px}
+.hero::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1100px,96vw);height:62vh;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(6,6,8,.78),rgba(6,6,8,.35) 55%,transparent 75%);pointer-events:none}
+.hero>*{position:relative}
+.hero .h-kicker{margin-bottom:22px;opacity:0}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(28px,6.6vw,92px);line-height:1.05;letter-spacing:0;text-transform:uppercase}
+.hero h1 .row:nth-child(2) span{font-size:.62em;color:transparent;-webkit-text-stroke:1.5px var(--white);letter-spacing:.14em;text-indent:.14em}
+.hero h1 .row{display:block;overflow:hidden}
+.hero h1 .row span{display:inline-block;transform:translateY(110%)}
+.hero h1 .peace{color:var(--red);display:inline-block;transform-origin:bottom;font-style:normal;padding:0 .04em}
+.hero .h-sub{margin-top:26px;max-width:420px;color:var(--dim);font-weight:300;font-size:15px;line-height:1.6;opacity:0}
+.hero .h-scroll{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
+.hero .h-scroll .tick{width:1px;height:42px;background:var(--line);position:relative;overflow:hidden}
+.hero .h-scroll .tick i{position:absolute;top:-100%;left:0;width:100%;height:100%;background:var(--red);animation:drop 1.8s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes drop{to{top:100%}}
+.hero .h-meta{position:absolute;bottom:34px;font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;opacity:0}
+.hero .h-meta.left{left:clamp(18px,4vw,48px)}
+.hero .h-meta.right{right:clamp(18px,4vw,48px)}
+@media(max-width:760px){.hero .h-meta{display:none}}
+
+/* ---------- STATEMENT ---------- */
+.statement{position:relative;z-index:2;padding:24vh clamp(20px,8vw,12vw)}
+.statement p{font-family:'Manrope',sans-serif;font-weight:300;font-size:clamp(26px,4.2vw,54px);line-height:1.25;max-width:1100px}
+.statement p .w{display:inline-block;opacity:.12}
+.statement p .hl{color:var(--red)}
+.statement .s-label{margin-bottom:34px}
+
+/* ---------- EVENTS (3D stage) ---------- */
+.events{position:relative;z-index:2}
+.e-pin{height:100svh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.e-head{position:absolute;top:calc(var(--nav-h) + 10px);left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:0 clamp(18px,4vw,48px);z-index:5;pointer-events:none}
+.events h2{font-family:'Syne',sans-serif;font-size:clamp(20px,2.9vw,36px);line-height:1;text-transform:uppercase}
+.events h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--white)}
+.e-prog{text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.e-prog .nums{font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.18em;color:var(--white)}
+.e-prog .nums b{color:var(--red);font-weight:400}
+.e-prog .bar{width:120px;height:1px;background:var(--line);position:relative}
+.e-prog .bar i{position:absolute;left:0;top:0;height:100%;background:var(--red);width:0%}
+.e-stage{position:relative;width:100%;height:100%;perspective:1200px;perspective-origin:50% 46%;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.e-stage:active{cursor:grabbing}
+.e-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(12,12,17,.55);backdrop-filter:blur(6px);color:var(--white);display:grid;place-items:center;transition:.3s}
+.e-arrow:hover{border-color:var(--red);color:var(--red)}
+.e-arrow.prev{left:clamp(10px,2.5vw,36px)}
+.e-arrow.next{right:clamp(10px,2.5vw,36px)}
+@media(max-width:640px){.e-arrow{width:42px;height:42px}.e-arrow.prev{left:8px}.e-arrow.next{right:8px}}
+.events.static .e-arrow{display:none}
+.e3d{position:absolute;left:50%;top:50%;width:min(820px,86vw);transform:translate(-50%,-50%);opacity:0;will-change:transform,opacity,filter;cursor:pointer}
+.e3d .panel{position:relative;border:1px solid rgba(242,240,235,.16);background:linear-gradient(135deg,rgba(242,240,235,.07),rgba(242,240,235,.015) 55%,rgba(242,240,235,.05));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:clamp(26px,4.5vw,52px);overflow:hidden;transform-style:preserve-3d}
+.e3d .panel::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(242,240,235,.025) 0 1px,transparent 1px 4px);pointer-events:none}
+.e3d .panel::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 90% 130% at 78% 18%,var(--glow,rgba(255,43,56,.18)),transparent 55%);pointer-events:none;mix-blend-mode:screen}
+.e3d[data-hue="offweek"]{--glow:rgba(255,43,56,.22);--hue:#ff2b38}
+.e3d[data-hue="zamna"]{--glow:rgba(255,122,47,.20);--hue:#ff7a2f}
+.e3d[data-hue="fridays"]{--glow:rgba(61,255,140,.16);--hue:#3dff8c}
+.e3d .corner{position:absolute;width:14px;height:14px;border-color:var(--hue);border-style:solid;opacity:.9}
+.e3d .corner.tl{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.e3d .corner.tr{top:-1px;right:-1px;border-width:1px 1px 0 0}
+.e3d .corner.bl{bottom:-1px;left:-1px;border-width:0 0 1px 1px}
+.e3d .corner.br{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+.e3d .p-top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:clamp(22px,4vh,44px)}
+.e3d .p-tag{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--hue)}
+.e3d .p-idx{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.e3d .p-date{font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.e3d .p-date b{color:var(--white);font-size:15px}
+.e3d h3{font-family:'Syne',sans-serif;font-size:clamp(24px,4.6vw,58px);line-height:1.05;text-transform:uppercase;letter-spacing:0}
+.e3d .p-venue{margin-top:16px;font-weight:300;color:var(--dim);font-size:14px;letter-spacing:.04em}
+.e3d .p-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:clamp(24px,4.5vh,50px);gap:14px;flex-wrap:wrap}
+.e3d .p-open{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--hue);color:var(--white);padding:13px 22px;border-radius:99px;display:inline-flex;gap:10px;align-items:center;transition:.3s;background:transparent}
+.e3d:hover .p-open{background:var(--hue);color:var(--black)}
+.e3d .p-hint{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.e-scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;display:flex;gap:10px;align-items:center}
+@media(max-width:640px){.e3d .p-hint{display:none}.e-prog .bar{width:70px}}
+.events.static .e-pin{height:auto;overflow:visible;display:block;padding:16vh 0 10vh}
+.events.static .e-head{position:static;margin-bottom:40px}
+.events.static .e-stage{perspective:none;height:auto}
+.events.static .e3d{position:relative;left:auto;top:auto;transform:none!important;opacity:1!important;filter:none!important;pointer-events:auto!important;margin:28px auto}
+.events.static .e-scrollhint{display:none}
+
+/* ---------- BRANDS MARQUEE ---------- */
+.brands{position:relative;z-index:2;padding:10vh 0;border-top:1px solid var(--line);overflow:hidden}
+.brands .b-label{text-align:center;margin-bottom:36px}
+.marquee{display:flex;gap:0;width:max-content;animation:scrollx 28s linear infinite}
+.marquee span{font-family:'Syne',sans-serif;font-size:clamp(26px,4.6vw,56px);text-transform:uppercase;white-space:nowrap;padding:0 34px;color:transparent;-webkit-text-stroke:1px rgba(242,240,235,.25);transition:.3s}
+.marquee span:hover{color:var(--white);-webkit-text-stroke:1px transparent}
+@keyframes scrollx{to{transform:translateX(-50%)}}
+
+/* ---------- CONTACT / FOOTER ---------- */
+footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:14vh clamp(18px,4vw,48px) 40px}
+footer .f-big{font-family:'Syne',sans-serif;font-size:clamp(30px,6vw,84px);text-transform:uppercase;line-height:1.04;margin:18px 0 40px}
+footer .f-big a{position:relative}
+footer .f-big a::after{content:"";position:absolute;left:0;bottom:6px;width:100%;height:3px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.65,0,.35,1)}
+footer .f-big a:hover::after{transform:scaleX(1);transform-origin:left}
+footer .f-grid{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end}
+footer .f-grid .col{display:flex;flex-direction:column;gap:8px}
+footer .f-grid a:hover{color:var(--red)}
+footer .f-base{margin-top:60px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* ---------- EVENT OVERLAY ---------- */
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(6,6,8,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:.45s}
+.overlay.open{opacity:1;visibility:visible}
+.sheet{position:fixed;top:0;right:0;bottom:0;z-index:90;width:min(640px,100vw);background:var(--ink);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .6s cubic-bezier(.7,0,.25,1);display:flex;flex-direction:column}
+.sheet.open{transform:translateX(0)}
+.sheet .sh-top{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,4vw,36px);border-bottom:1px solid var(--line);flex-shrink:0}
+.sheet .sh-close{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--white);display:grid;place-items:center;transition:.3s}
+.sheet .sh-close:hover{background:var(--red);border-color:var(--red);transform:rotate(90deg)}
+.sheet .sh-scroll{overflow-y:auto;padding:30px clamp(20px,4vw,36px) 60px;flex:1}
+.sheet h3{font-family:'Syne',sans-serif;font-size:clamp(26px,4.2vw,42px);line-height:1.08;text-transform:uppercase;margin:8px 0 18px}
+.sheet .sh-meta{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
+.sheet .sh-meta div{background:var(--ink);padding:14px 16px}
+.sheet .sh-meta .mono{display:block;margin-bottom:5px;font-size:10px}
+.sheet .sh-desc{color:var(--dim);font-weight:300;line-height:1.65;font-size:15px}
+.sheet .sh-tix{display:inline-flex;align-items:center;gap:10px;margin-top:20px;font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--line);padding:13px 20px;border-radius:99px;transition:.3s}
+.sheet .sh-tix:hover{border-color:var(--white)}
+.sheet .sh-divider{margin:42px 0 26px;display:flex;align-items:center;gap:14px}
+.sheet .sh-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* tiers */
+.tier{border:1px solid var(--line);padding:18px;margin-bottom:12px;cursor:pointer;position:relative;transition:.3s;background:var(--panel)}
+.tier:hover{border-color:rgba(242,240,235,.4)}
+.tier.sel{border-color:var(--red)}
+.tier.sel::after{content:"SELECTED";position:absolute;top:14px;right:14px;font-family:'Manrope',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--red)}
+.tier .t-name{font-family:'Syne',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:.02em}
+.tier .t-price{font-family:'Manrope',sans-serif;font-size:13px;color:var(--red);margin:6px 0 8px}
+.tier .t-desc{font-size:13px;color:var(--dim);font-weight:300;line-height:1.55}
+.sheet .t-note{font-size:12px;color:var(--dim);font-weight:300;line-height:1.6;margin:14px 0 0;padding-left:14px;border-left:2px solid var(--red)}
+
+/* form */
+.bform{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bform .full{grid-column:1/-1}
+.bform label{display:block}
+.bform label .mono{display:block;margin-bottom:8px;font-size:10px}
+.bform input,.bform select,.bform textarea{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--white);font-family:'Manrope',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .3s;border-radius:0;-webkit-appearance:none}
+.bform input:focus,.bform select:focus,.bform textarea:focus{border-color:var(--red)}
+.bform textarea{resize:vertical;min-height:80px}
+.bform .submit{grid-column:1/-1;margin-top:8px;background:var(--red);border:1px solid var(--red);color:var(--white);font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:17px;transition:.3s}
+.bform .submit:hover{background:transparent;color:var(--red)}
+.bform .err{grid-column:1/-1;color:var(--red);font-size:12px;display:none}
+.bsuccess{display:none;margin-top:26px;border:1px solid var(--red);padding:26px}
+.bsuccess h4{font-family:'Syne',sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:10px}
+.bsuccess p{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6}
+.bsuccess .ref{font-family:'Manrope',sans-serif;color:var(--white);font-size:13px;margin-top:14px;display:block}
+@media(max-width:520px){.bform{grid-template-columns:1fr}}
+
+@media(prefers-reduced-motion:reduce){
+  .grain,.marquee,.hero .h-scroll .tick i{animation:none}
+}
+
+/* display type */
+.hero h1,.events h2,.e3d h3,.sheet h3,nav .logo,#loader .l-bn,#loader .l-count,footer .f-big,.tier .t-name,.bsuccess h4,.marquee span{font-weight:800;letter-spacing:.005em}
+</style>
+</head>
+<body>
+
+<canvas id="webgl"></canvas>
+<div class="grain"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="l-brand">
+    <span class="l-bn">B'FAST<span>2</span>NIGHT</span>
+    <span class="l-sub mono">entertainment — malta</span>
+  </div>
+  <div class="l-line"><i id="lLine"></i></div>
+  <div class="l-count" id="lCount">0</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#top">B'FAST<span class="peace">2</span>NIGHT</a>
+  <div class="links">
+    <a href="#events">Events</a>
+    <a href="#events">VIP Tables</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="h-kicker mono red">Malta — Est. on the dancefloor</div>
+  <h1>
+    <span class="row"><span>B'FAST<em class="peace">2</em>NIGHT</span></span>
+    <span class="row"><span>ENTERTAINMENT</span></span>
+  </h1>
+  <p class="h-sub">From sunset beach stages to sold-out club takeovers — we build the nights Malta talks about the morning after.</p>
+  <div class="h-meta left">Sky Club · Gianpula · Palm Beach</div>
+  <div class="h-scroll"><span class="mono">Scroll</span><span class="tick"><i></i></span></div>
+  <div class="h-meta right">Season 2026</div>
+</header>
+
+<!-- STATEMENT -->
+<section class="statement">
+  <div class="s-label mono red">01 — Who we are</div>
+  <p id="stmt">We are the promoters behind <span class="hl">Zamna Malta</span>, <span class="hl">OFFWEEK</span> and the island's most talked-about club nights. World-class artists, festival-scale production, and VIP service engineered down to the last detail.</p>
+</section>
+
+<!-- EVENTS -->
+<section class="events" id="events">
+  <div class="e-pin">
+    <div class="e-head">
+      <h2>Upcoming<br><em>Events</em></h2>
+      <div class="e-prog">
+        <span class="nums"><b id="pNow">01</b> / <span id="pTotal">03</span></span>
+        <span class="bar"><i id="pBar"></i></span>
+        <span class="mono" id="pName"></span>
+      </div>
+    </div>
+    <div class="e-stage" id="eStage"></div>
+    <button class="e-arrow prev" id="ePrev" aria-label="Previous event"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2L4 8l6 6"/></svg></button>
+    <button class="e-arrow next" id="eNext" aria-label="Next event"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l6 6-6 6"/></svg></button>
+    <div class="e-scrollhint"><span class="mono">Swipe / drag to explore</span></div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<section class="brands">
+  <div class="b-label mono red">Our nights</div>
+  <div class="marquee" id="marquee">
+    <span>Zamna Malta</span><span>·</span><span>Offweek</span><span>·</span><span>Bongo P*rn</span><span>·</span><span>Out of Office</span><span>·</span><span>French Fridays</span><span>·</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="mono red">02 — Get in touch</div>
+  <div class="f-big">Book your<br><a href="#events" id="fBook">table tonight</a></div>
+  <div class="f-grid">
+    <div class="col">
+      <span class="mono">Follow</span>
+      <a href="https://www.instagram.com/bfast2night" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.facebook.com/Bfast2night" target="_blank" rel="noopener">Facebook</a>
+    </div>
+    <div class="col">
+      <span class="mono">Enquiries</span>
+      <a href="mailto:info@bfast2night.com">info@bfast2night.com</a>
+      <span style="color:var(--dim);font-weight:300">VIP & corporate bookings</span>
+    </div>
+  </div>
+  <div class="f-base">
+    <span class="mono">© 2026 B'Fast2Night Entertainment</span>
+    <span class="mono">Malta · 17+ events · Party responsibly</span>
+  </div>
+</footer>
+
+<!-- EVENT SHEET -->
+<div class="overlay" id="overlay"></div>
+<aside class="sheet" id="sheet" aria-hidden="true">
+  <div class="sh-top">
+    <span class="mono red" id="shTag">Event</span>
+    <button class="sh-close" id="shClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12M14 2L2 14"/></svg>
+    </button>
+  </div>
+  <div class="sh-scroll">
+    <span class="mono" id="shDate"></span>
+    <h3 id="shName"></h3>
+    <p class="sh-desc" id="shDesc"></p>
+    <div class="sh-meta">
+      <div><span class="mono">Venue</span><span id="shVenue"></span></div>
+      <div><span class="mono">Doors</span><span id="shTime"></span></div>
+      <div><span class="mono">Age</span><span id="shAge"></span></div>
+      <div><span class="mono">Tickets from</span><span id="shPrice"></span></div>
+    </div>
+    <a class="sh-tix" id="shTix" href="#" target="_blank" rel="noopener">General tickets ↗</a>
+
+    <div class="sh-divider"><span class="mono red">VIP Tables</span></div>
+    <div id="tierList"></div>
+    <p class="t-note">Your table deposit is fully redeemable in bottle &amp; drink credit on the night. Deposits are non-refundable. Entry tickets are separate unless stated.</p>
+
+    <form class="bform" id="bform" novalidate>
+      <label class="full"><span class="mono">Full name</span><input type="text" id="fName" autocomplete="name" required></label>
+      <label><span class="mono">Email</span><input type="email" id="fEmail" autocomplete="email" required></label>
+      <label><span class="mono">Phone / WhatsApp</span><input type="tel" id="fPhone" autocomplete="tel" required></label>
+      <label><span class="mono">Guests</span>
+        <select id="fGuests"></select>
+      </label>
+      <label><span class="mono">Table</span>
+        <select id="fTier"></select>
+      </label>
+      <label class="full"><span class="mono">Notes (optional)</span><textarea id="fNotes" placeholder="Birthday, bottle preferences, arrival time…"></textarea></label>
+      <span class="err" id="bErr">Please fill in your name, email and phone so we can confirm your table.</span>
+      <button type="submit" class="submit">Request this table</button>
+    </form>
+    <div class="bsuccess" id="bSuccess">
+      <h4>Table requested</h4>
+      <p id="bSumm"></p>
+      <p style="margin-top:10px">Our VIP team will confirm availability and send a secure payment link within 24 hours.</p>
+      <span class="ref" id="bRef"></span>
+    </div>
+  </div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.18/lenis.min.js"></script>
+<script>
+/* =========================================================
+   B'FAST 2 NIGHT — site engine
+   Edit EVENTS + TIERS below to manage content.
+   TODO (phase 2): wire submitBooking() to Supabase,
+   then attach Stripe payment link on confirmation.
+========================================================= */
+
+const TIERS_DEFAULT = [
+  {id:'silver',  name:'Silver Table',   price:'€350 min. spend', desc:'Reserved table for up to 6 guests. Dedicated waitress service. Full deposit redeemable in bottles & drinks.'},
+  {id:'gold',    name:'Gold Table',     price:'€600 min. spend', desc:'Prime-position table for up to 8 guests. Priority entry for your group, dedicated host & waitress service.'},
+  {id:'platinum',name:'Platinum Stage', price:'€1,000 min. spend', desc:'Front-of-stage table for up to 12. Skip-the-line entry, personal host, sparklers on arrival. The full show.'},
+];
+
+const EVENTS = [
+  {
+    id:'offweek', hue:'offweek', tag:'Festival takeover',
+    name:'OFFWEEK Festival Malta',
+    day:'11', month:'JUL', year:'2026', dateLong:'Saturday 11 July 2026',
+    venue:'Gianpula Main Room', time:'21:00 – 04:00', age:'17+', price:'See tickets',
+    desc:'From Barcelona to Hi Ibiza and now to Malta — OFFWEEK lands at Gianpula Main Room for one massive takeover. Expect top-level production, an international crowd and the energy OFFWEEK is known for across Europe.',
+    tickets:'https://www.showshappening.com/bfast2night/offweek-festival-malta',
+    tiers:TIERS_DEFAULT
+  },
+  {
+    id:'zamna', hue:'zamna', tag:'Sunset beach show',
+    name:'Zamna On The Beach',
+    day:'09', month:'AUG', year:'2026', dateLong:'Sunday 9 August 2026',
+    venue:'Palm Beach, Malta', time:'16:00 – 00:00', age:'17+', price:'€10',
+    desc:'Zamna returns to Malta — this time on the shores of the Mediterranean. From afternoon through sunset until midnight, world-class music and the true Zamna vibe by the beach.',
+    tickets:'https://www.showshappening.com/bfast2night/zamna-on-the-beach-malta',
+    tiers:[
+      {id:'cabana',  name:'Beach Cabana',  price:'€400 min. spend', desc:'Private cabana for up to 6 with waitress service through sunset. Deposit fully redeemable in drinks.'},
+      {id:'front',   name:'Stage Front',   price:'€700 min. spend', desc:'Front-row beach table for up to 8. Priority entry and dedicated host for the whole show.'},
+      {id:'ultra',   name:'Ultra Cabana',  price:'€1,200 min. spend', desc:'The best spot on the sand for up to 12. Personal host, premium bottle menu, golden-hour views.'},
+    ]
+  },
+  {
+    id:'fridays', hue:'fridays', tag:'Weekly residency',
+    name:'French Fridays — Marrakech',
+    day:'FRI', month:'WKLY', year:'2026', dateLong:'Every Friday',
+    venue:'Marrakech, Gianpula Village', time:'22:00 – 04:00', age:'17+', price:'See tickets',
+    desc:'Every Friday under the stars at Malta\u2019s iconic open-air venue. A night dedicated to the hottest commercial French music — chart-toppers to club anthems.',
+    tickets:'https://www.showshappening.com/bfast2night/MARRAKECH-PARTY--COMMERCIAL-FRENCH-MUSIC--EVERY-FRIDAY',
+    tiers:TIERS_DEFAULT
+  },
+];
+
+/* ---------- render 3D event cards ---------- */
+const stage=document.getElementById('eStage');
+const cards=[];
+EVENTS.forEach((ev,i)=>{
+  const el=document.createElement('article');
+  el.className='e3d';el.dataset.hue=ev.hue;el.tabIndex=0;
+  el.innerHTML=`
+    <div class="panel">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="p-top"><span class="p-tag">${ev.tag}</span><span class="p-idx">EVT_${String(i+1).padStart(2,'0')}</span></div>
+      <div class="p-date"><b>${ev.day} ${ev.month} ${ev.year}</b> — ${ev.time}</div>
+      <h3>${ev.name}</h3>
+      <div class="p-venue mono">${ev.venue}</div>
+      <div class="p-bottom">
+        <button class="p-open">Details + VIP tables<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 13L13 3M5 3h8v8"/></svg></button>
+        <span class="p-hint">Deposit redeemable in drinks</span>
+      </div>
+    </div>`;
+  el.addEventListener('click',()=>openSheet(i));
+  el.addEventListener('keydown',e=>{if(e.key==='Enter')openSheet(i)});
+  stage.appendChild(el);cards.push(el);
+});
+document.getElementById('pTotal').textContent=String(EVENTS.length).padStart(2,'0');
+
+const HUES={offweek:'#ff2b38',zamna:'#ff7a2f',fridays:'#3dff8c'};
+let activeIdx=-1,tiltX=0,tiltY=0;
+
+function setProg(idx,p){
+  document.getElementById('pNow').textContent=String(idx+1).padStart(2,'0');
+  document.getElementById('pName').textContent=EVENTS[idx].name;
+  document.getElementById('pBar').style.width=(p*100)+'%';
+}
+let renderCards=function(cur){
+  const N=cards.length;
+  const seg=Math.max(0,Math.min(N-1,Math.round(cur)));
+  if(seg!==activeIdx){
+    activeIdx=seg;setProg(seg,cur/(N-1));
+    if(window.__aura)window.__aura.flare(HUES[EVENTS[seg].hue]);
+  }else{setProg(seg,Math.max(0,Math.min(1,cur/(N-1))))}
+  cards.forEach((el,i)=>{
+    const t=cur-i; // 0 = centered
+    let z,op,sc,rx,bl,y;
+    if(t<0){ // incoming from depth
+      const u=Math.max(0,1+t/.75); // 0..1
+      z=-1500+1500*ease(u);op=u*u;sc=.82+.18*u;rx=14-14*ease(u);bl=8-8*u;y=40-40*u;
+    }else{ // outgoing past camera
+      const u=Math.min(1,t/.75);
+      z=900*ease(u);op=1-u;sc=1+.25*u;rx=-10*u;bl=12*u;y=-30*u;
+    }
+    if(op<=0.001){el.style.opacity=0;el.style.pointerEvents='none';return}
+    el.style.pointerEvents=(t>=-0.2&&t<.5)?'auto':'none';
+    el.style.opacity=op;
+    el.style.filter=bl>0.3?`blur(${bl.toFixed(1)}px)`:'none';
+    const isActive=t>=-0.15&&t<.35;
+    const tx=isActive?tiltY:0, ty=isActive?tiltX:0;
+    el.style.transform=`translate(-50%,-50%) translate3d(0,${y}px,${z}px) rotateX(${(rx+tx).toFixed(2)}deg) rotateY(${ty.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+    el.style.zIndex=Math.round(100-Math.abs(t)*50);
+  });
+};
+function ease(u){return 1-Math.pow(1-u,3)}
+/* ---------- swipe engine ---------- */
+const NEV=EVENTS.length;
+let cur=0,target=0,dragging=false,dragX0=0,dragCur0=0,moved=0,animOn=false;
+function animate(){
+  if(animOn)return;animOn=true;
+  (function loop(){
+    cur+=(target-cur)*.12;
+    if(Math.abs(target-cur)<.0008&&!dragging){cur=target;renderCards(cur);animOn=false;return}
+    renderCards(cur);requestAnimationFrame(loop);
+  })();
+}
+function goTo(i){target=Math.max(0,Math.min(NEV-1,i));animate()}
+stage.addEventListener('pointerdown',e=>{
+  dragging=true;moved=0;dragX0=e.clientX;dragCur0=cur;
+});
+window.addEventListener('pointermove',e=>{
+  if(dragging){
+    const dx=e.clientX-dragX0;moved=Math.max(moved,Math.abs(dx));
+    target=cur=Math.max(-.3,Math.min(NEV-1+.3,dragCur0-dx/(stage.clientWidth*.55)));
+    renderCards(cur);
+  }
+});
+stage.addEventListener('pointermove',e=>{
+  if(dragging)return;
+  const r=stage.getBoundingClientRect();
+  tiltX=((e.clientX-r.left)/r.width-.5)*7;
+  tiltY=-((e.clientY-r.top)/r.height-.5)*6;
+  renderCards(cur);
+});
+function endDrag(e){
+  if(!dragging)return;dragging=false;
+  const dx=e.clientX-dragX0, flick=Math.abs(dx)>40&&moved>12;
+  let next=Math.round(cur);
+  if(flick)next=dx<0?Math.ceil(dragCur0+.15):Math.floor(dragCur0-.15);
+  goTo(next);
+}
+window.addEventListener('pointerup',endDrag);
+window.addEventListener('pointercancel',endDrag);
+stage.addEventListener('pointerleave',()=>{if(!dragging){tiltX=0;tiltY=0;renderCards(cur)}});
+addEventListener('keydown',e=>{
+  if(sheet.classList.contains('open'))return;
+  if(e.key==='ArrowRight')goTo(Math.round(target)+1);
+  if(e.key==='ArrowLeft')goTo(Math.round(target)-1);
+});
+document.getElementById('eNext').addEventListener('click',()=>goTo(Math.round(target)+1));
+document.getElementById('ePrev').addEventListener('click',()=>goTo(Math.round(target)-1));
+// suppress card click after a real drag
+stage.addEventListener('click',e=>{if(moved>8){e.stopPropagation();e.preventDefault()}},true);
+
+/* ---------- sheet ---------- */
+const sheet=document.getElementById('sheet'),overlay=document.getElementById('overlay');
+let activeEv=null,activeTier=0;
+function openSheet(i){
+  activeEv=EVENTS[i];activeTier=0;
+  document.getElementById('shTag').textContent=activeEv.tag;
+  document.getElementById('shDate').textContent=activeEv.dateLong;
+  document.getElementById('shName').textContent=activeEv.name;
+  document.getElementById('shDesc').textContent=activeEv.desc;
+  document.getElementById('shVenue').textContent=activeEv.venue;
+  document.getElementById('shTime').textContent=activeEv.time;
+  document.getElementById('shAge').textContent=activeEv.age;
+  document.getElementById('shPrice').textContent=activeEv.price;
+  document.getElementById('shTix').href=activeEv.tickets;
+  renderTiers();
+  const g=document.getElementById('fGuests');g.innerHTML='';
+  for(let n=2;n<=12;n++){g.innerHTML+=`<option value="${n}">${n} guests</option>`}
+  document.getElementById('bform').style.display='grid';
+  document.getElementById('bSuccess').style.display='none';
+  document.getElementById('bErr').style.display='none';
+  sheet.classList.add('open');overlay.classList.add('open');
+  sheet.setAttribute('aria-hidden','false');
+  if(window.lenis)lenis.stop();
+  sheet.querySelector('.sh-scroll').scrollTop=0;
+}
+function closeSheet(){
+  sheet.classList.remove('open');overlay.classList.remove('open');
+  sheet.setAttribute('aria-hidden','true');
+  if(window.lenis)lenis.start();
+}
+document.getElementById('shClose').addEventListener('click',closeSheet);
+overlay.addEventListener('click',closeSheet);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+function renderTiers(){
+  const wrap=document.getElementById('tierList');wrap.innerHTML='';
+  const sel=document.getElementById('fTier');sel.innerHTML='';
+  activeEv.tiers.forEach((t,j)=>{
+    const d=document.createElement('div');
+    d.className='tier'+(j===activeTier?' sel':'');
+    d.innerHTML=`<div class="t-name">${t.name}</div><div class="t-price">${t.price}</div><div class="t-desc">${t.desc}</div>`;
+    d.addEventListener('click',()=>{activeTier=j;renderTiers()});
+    wrap.appendChild(d);
+    sel.innerHTML+=`<option value="${j}" ${j===activeTier?'selected':''}>${t.name} — ${t.price}</option>`;
+  });
+  sel.onchange=e=>{activeTier=+e.target.value;renderTiers()};
+}
+
+/* ---------- booking submit ----------
+   PHASE 2: replace the body of submitBooking() with a
+   Supabase insert + email notification (Resend), then
+   send the customer a Stripe payment link to confirm. */
+function submitBooking(data){
+  console.log('BOOKING REQUEST',data); // placeholder
+  return Promise.resolve({ref:'BF-'+Date.now().toString(36).toUpperCase()});
+}
+document.getElementById('bform').addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=fName.value.trim(),email=fEmail.value.trim(),phone=fPhone.value.trim();
+  if(!name||!email.includes('@')||!phone){bErr.style.display='block';return}
+  bErr.style.display='none';
+  const t=activeEv.tiers[activeTier];
+  submitBooking({event:activeEv.name,date:activeEv.dateLong,tier:t.name,price:t.price,
+    name,email,phone,guests:fGuests.value,notes:fNotes.value.trim()})
+    .then(r=>{
+      bSumm.textContent=`${t.name} · ${activeEv.name} · ${activeEv.dateLong} · ${fGuests.value} guests`;
+      bRef.textContent='Reference '+r.ref;
+      document.getElementById('bform').style.display='none';
+      bSuccess.style.display='block';
+      sheet.querySelector('.sh-scroll').scrollTo({top:sheet.querySelector('.sh-scroll').scrollHeight,behavior:'smooth'});
+    });
+});
+
+/* ---------- smooth scroll ---------- */
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let lenis=null;
+if(!reduced&&window.Lenis){
+  lenis=new Lenis({lerp:.09,wheelMultiplier:1});
+  window.lenis=lenis;
+  function raf(t){lenis.raf(t);requestAnimationFrame(raf)}
+  requestAnimationFrame(raf);
+}
+if(reduced){
+  document.querySelector('.events').classList.add('static');
+  renderCards=()=>{};
+}else{
+  renderCards(0);setProg(0,0);
+  new IntersectionObserver(es=>{
+    es.forEach(en=>{if(window.__aura)window.__aura.show(en.isIntersecting?1:0)});
+  },{threshold:.25}).observe(document.querySelector('.events'));
+}
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const tgt=document.querySelector(a.getAttribute('href'));
+    if(!tgt)return;e.preventDefault();
+    lenis?lenis.scrollTo(tgt,{offset:0}):tgt.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* ---------- particles: light-trail vortex ---------- */
+let burst=0;
+(function(){
+  if(!window.THREE)return;
+  const canvas=document.getElementById('webgl');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);
+  cam.position.set(0,0,7);
+
+  /* soft round sprite for dust + aura */
+  const cv=document.createElement('canvas');cv.width=cv.height=64;
+  const ctx=cv.getContext('2d');
+  const grd=ctx.createRadialGradient(32,32,0,32,32,32);
+  grd.addColorStop(0,'rgba(255,255,255,1)');grd.addColorStop(.4,'rgba(255,255,255,.45)');grd.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=grd;ctx.fillRect(0,0,64,64);
+  const tex=new THREE.CanvasTexture(cv);
+
+  const mobile=innerWidth<768;
+  const group=new THREE.Group();scene.add(group);
+  group.rotation.x=-.56;group.rotation.z=.1;
+  if(mobile)group.scale.setScalar(.62);
+
+  /* ---- streak trails (the vortex) ---- */
+  const TN=mobile?1500:3200;
+  const tpos=new Float32Array(TN*2*3);
+  const tcol=new Float32Array(TN*2*3);
+  const ts=new Float32Array(TN*4);
+  const cWhite=new THREE.Color('#fff4e2'),cChamp=new THREE.Color('#ffc98a'),cRed=new THREE.Color('#ff3a45');
+  for(let i=0;i<TN;i++){
+    const r=2.0+Math.pow(Math.random(),1.6)*3.0;
+    const a0=Math.random()*Math.PI*2;
+    const y0=((Math.random()+Math.random()+Math.random())/3-.5)*.9*(r/2.6);
+    const sp=(.5+Math.random()*.55)/Math.pow(r/2,1.1);
+    ts.set([r,a0,y0,sp],i*4);
+    const u=Math.random();
+    const c=u<.68?cWhite.clone().multiplyScalar(.4+Math.random()*.6)
+          :u<.92?cChamp.clone().multiplyScalar(.45+Math.random()*.5)
+          :cRed.clone().multiplyScalar(.55+Math.random()*.35);
+    tcol.set([c.r,c.g,c.b],i*6);                       // head
+    tcol.set([c.r*.12,c.g*.12,c.b*.12],i*6+3);          // tail fades out
+  }
+  const tgeo=new THREE.BufferGeometry();
+  tgeo.setAttribute('position',new THREE.BufferAttribute(tpos,3));
+  tgeo.setAttribute('color',new THREE.BufferAttribute(tcol,3));
+  const tmat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.8,
+    blending:THREE.AdditiveBlending,depthWrite:false});
+  tmat.opacity=.7;
+  const trails=new THREE.LineSegments(tgeo,tmat);
+  group.add(trails);
+
+  /* ---- faint deep dust (sparse, not confetti) ---- */
+  const DN=mobile?220:450;
+  const dpos=new Float32Array(DN*3);
+  for(let i=0;i<DN;i++){
+    dpos.set([(Math.random()-.5)*16,(Math.random()-.5)*9,-3-Math.random()*6],i*3);
+  }
+  const dgeo=new THREE.BufferGeometry();
+  dgeo.setAttribute('position',new THREE.BufferAttribute(dpos,3));
+  const dmat=new THREE.PointsMaterial({size:.04,map:tex,color:new THREE.Color('#fff0dd'),
+    transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  scene.add(new THREE.Points(dgeo,dmat));
+
+  /* ---- holographic aura behind event cards ---- */
+  const AN=mobile?900:1500;
+  const aseed=new Float32Array(AN*4);
+  const ageo=new THREE.BufferGeometry();
+  ageo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(AN*3),3));
+  for(let i=0;i<AN;i++){
+    aseed.set([Math.pow(Math.random(),.5),Math.random()*Math.PI*2,(Math.random()-.5)*2,.2+Math.random()*.7],i*4);
+  }
+  const amat=new THREE.PointsMaterial({size:.075,map:tex,color:new THREE.Color('#ff2b38'),
+    transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  const aura=new THREE.Points(ageo,amat);
+  aura.position.z=-.6;scene.add(aura);
+  let aShow=0,aFlare=0;const aCol=new THREE.Color('#ff2b38');
+  window.__aura={flare(hex){aCol.set(hex);aFlare=1},show(v){aShow=v}};
+
+  let mx=0,my=0,scroll=0;
+  addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5)});
+  function resize(){renderer.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+  addEventListener('resize',resize);resize();
+
+  const clock=new THREE.Clock();
+  (function tick(){
+    const t=clock.getElapsedTime();
+    const spread=1+scroll*1.5+burst*.55;
+    const L=.30+burst*.45; // streak arc length
+    for(let i=0;i<TN;i++){
+      const r=ts[i*4]*spread,a0=ts[i*4+1],y0=ts[i*4+2],sp=ts[i*4+3];
+      const a=a0+t*sp;
+      const a2=a-L/Math.max(.7,r); // constant visual streak length
+      const y=(y0+Math.sin(t*.45+a0*3)*.05)*spread;
+      tpos[i*6]  =Math.cos(a)*r;  tpos[i*6+1]=y;  tpos[i*6+2]=Math.sin(a)*r;
+      tpos[i*6+3]=Math.cos(a2)*r; tpos[i*6+4]=y;  tpos[i*6+5]=Math.sin(a2)*r;
+    }
+    tgeo.attributes.position.needsUpdate=true;
+    group.rotation.y=t*.055;
+    group.rotation.x=-.56+my*.12;
+    group.rotation.z=.1+mx*.06;
+    cam.position.x+=((mx*.9)-cam.position.x)*.04;
+    cam.position.y+=((-my*.6)-cam.position.y)*.04;
+    cam.lookAt(0,0,0);
+    tmat.opacity=Math.max(.08,.7-scroll*.65);
+    dmat.opacity=Math.max(.04,.16-scroll*.1);
+    burst*=.95;
+    /* aura */
+    const ap=ageo.attributes.position.array;
+    const spreadA=1+aFlare*.9;
+    for(let i=0;i<AN;i++){
+      const rr=aseed[i*4],a0=aseed[i*4+1],yy=aseed[i*4+2],sp=aseed[i*4+3];
+      const a=a0+t*sp*.6;
+      ap[i*3]  =Math.cos(a)*rr*3.4*spreadA;
+      ap[i*3+1]=yy*1.5*spreadA+Math.sin(t*.6+a0*4)*.1;
+      ap[i*3+2]=Math.sin(a)*rr*.7;
+    }
+    ageo.attributes.position.needsUpdate=true;
+    amat.color.lerp(aCol,.07);
+    const aOp=aShow*(.55+aFlare*.45);
+    amat.opacity+=(aOp-amat.opacity)*.06;
+    aFlare*=.94;
+    renderer.render(scene,cam);
+    if(!reduced)requestAnimationFrame(tick);
+  })();
+
+  function onScroll(){scroll=Math.min(1,(window.scrollY||0)/(innerHeight*1.6))}
+  addEventListener('scroll',onScroll,{passive:true});
+})();
+
+/* ---------- loader + intro ---------- */
+(function(){
+  const line=document.getElementById('lLine'),count=document.getElementById('lCount'),
+        loaderEl=document.getElementById('loader');
+  function heroIn(extraDelay){
+    if(window.gsap&&!reduced){
+      gsap.to('.hero h1 .row span',{y:0,duration:1.1,stagger:.12,ease:'power4.out',delay:extraDelay});
+      gsap.to(['.h-kicker','.h-sub'],{opacity:1,duration:1,delay:extraDelay+.55,stagger:.15});
+      gsap.to(['.h-scroll','.h-meta'],{opacity:1,duration:1,delay:extraDelay+.9});
+      gsap.from('.hero h1 .peace',{scale:0,rotate:-40,duration:.9,ease:'back.out(2)',delay:extraDelay+.75});
+    }else{
+      document.querySelectorAll('.hero h1 .row span').forEach(el=>el.style.transform='none');
+      document.querySelectorAll('.h-kicker,.h-sub,.h-scroll,.h-meta').forEach(el=>el.style.opacity=1);
+    }
+  }
+  if(reduced||!window.gsap){
+    loaderEl.classList.add('done');heroIn(0);return;
+  }
+  const prox={p:0};
+  gsap.timeline()
+    /* count up */
+    .to(prox,{p:100,duration:2.1,ease:'power3.inOut',onUpdate(){
+      count.textContent=Math.floor(prox.p);
+      line.style.transform=`scaleX(${prox.p/100})`;
+    }})
+    /* brand tightens as it loads (runs alongside) */
+    .to('.l-bn',{letterSpacing:'.1em',textIndent:'.1em',duration:2.1,ease:'power2.inOut'},0)
+    /* settle */
+    .to({},{duration:.25})
+    /* counter slides out, line flashes red then full-bleed */
+    .to('.l-count',{yPercent:55,opacity:0,duration:.6,ease:'power3.in'},'exit')
+    .to('.l-line i',{background:'#ff2b38',duration:.25},'exit')
+    .to('.l-line',{width:'100vw',duration:.7,ease:'expo.inOut'},'exit+=.1')
+    .to('.l-brand',{opacity:0,y:-14,duration:.5,ease:'power2.in'},'exit+=.15')
+    /* wipe up */
+    .add(()=>{burst=1})
+    .to(loaderEl,{yPercent:-100,duration:1,ease:'expo.inOut',onComplete(){loaderEl.classList.add('done')}})
+    .add(()=>heroIn(0),'-=.55');
+})();
+
+/* ---------- scroll animations ---------- */
+if(window.gsap&&window.ScrollTrigger&&!reduced){
+  gsap.registerPlugin(ScrollTrigger);
+  if(lenis)lenis.on('scroll',ScrollTrigger.update);
+
+  // statement word reveal
+  const stmt=document.getElementById('stmt');
+  stmt.innerHTML=stmt.innerHTML.split(/(<span class="hl">.*?<\/span>|\s+)/g)
+    .map(w=>w.trim()? (w.startsWith('<span')?`<span class="w">${w}</span>`:`<span class="w">${w}</span>`) : ' ').join(' ');
+  gsap.to('#stmt .w',{opacity:1,stagger:.06,ease:'none',
+    scrollTrigger:{trigger:'.statement',start:'top 72%',end:'center 45%',scrub:.4}});
+  gsap.from('.e-pin',{opacity:0,y:60,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:'.events',start:'top 70%'}});
+  gsap.from('footer .f-big',{y:60,opacity:0,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:'footer',start:'top 80%'}});
+}
+</script>
+</body>
+</html>
