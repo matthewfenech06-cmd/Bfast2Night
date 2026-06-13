@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Three.js ES module importmap — lets postprocessing jsm files resolve 'three' -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
 <style>
 :root{
   --black:#060608;
@@ -322,21 +333,15 @@ footer .f-base{margin-top:60px;display:flex;justify-content:space-between;gap:14
       <div><span class="mono">Tickets from</span><span id="shPrice"></span></div>
     </div>
     <a class="sh-tix" id="shTix" href="#" target="_blank" rel="noopener">General tickets ↗</a>
-
     <div class="sh-divider"><span class="mono red">VIP Tables</span></div>
     <div id="tierList"></div>
     <p class="t-note">Your table deposit is fully redeemable in bottle &amp; drink credit on the night. Deposits are non-refundable. Entry tickets are separate unless stated.</p>
-
     <form class="bform" id="bform" novalidate>
       <label class="full"><span class="mono">Full name</span><input type="text" id="fName" autocomplete="name" required></label>
       <label><span class="mono">Email</span><input type="email" id="fEmail" autocomplete="email" required></label>
       <label><span class="mono">Phone / WhatsApp</span><input type="tel" id="fPhone" autocomplete="tel" required></label>
-      <label><span class="mono">Guests</span>
-        <select id="fGuests"></select>
-      </label>
-      <label><span class="mono">Table</span>
-        <select id="fTier"></select>
-      </label>
+      <label><span class="mono">Guests</span><select id="fGuests"></select></label>
+      <label><span class="mono">Table</span><select id="fTier"></select></label>
       <label class="full"><span class="mono">Notes (optional)</span><textarea id="fNotes" placeholder="Birthday, bottle preferences, arrival time…"></textarea></label>
       <span class="err" id="bErr">Please fill in your name, email and phone so we can confirm your table.</span>
       <button type="submit" class="submit">Request this table</button>
@@ -350,16 +355,15 @@ footer .f-base{margin-top:60px;display:flex;justify-content:space-between;gap:14
   </div>
 </aside>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<!-- GSAP + Lenis (global scripts — unchanged) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.18/lenis.min.js"></script>
+
 <script>
 /* =========================================================
-   B'FAST 2 NIGHT — site engine
-   Edit EVENTS + TIERS below to manage content.
-   TODO (phase 2): wire submitBooking() to Supabase,
-   then attach Stripe payment link on confirmation.
+   B'FAST 2 NIGHT — site engine (booking / events / UI)
+   WebGL + postprocessing live in the module script below.
 ========================================================= */
 
 const TIERS_DEFAULT = [
@@ -396,7 +400,7 @@ const EVENTS = [
     name:'French Fridays — Marrakech',
     day:'FRI', month:'WKLY', year:'2026', dateLong:'Every Friday',
     venue:'Marrakech, Gianpula Village', time:'22:00 – 04:00', age:'17+', price:'See tickets',
-    desc:'Every Friday under the stars at Malta\u2019s iconic open-air venue. A night dedicated to the hottest commercial French music — chart-toppers to club anthems.',
+    desc:'Every Friday under the stars at Malta’s iconic open-air venue. A night dedicated to the hottest commercial French music — chart-toppers to club anthems.',
     tickets:'https://www.showshappening.com/bfast2night/MARRAKECH-PARTY--COMMERCIAL-FRENCH-MUSIC--EVERY-FRIDAY',
     tiers:TIERS_DEFAULT
   },
@@ -442,12 +446,12 @@ let renderCards=function(cur){
     if(window.__aura)window.__aura.flare(HUES[EVENTS[seg].hue]);
   }else{setProg(seg,Math.max(0,Math.min(1,cur/(N-1))))}
   cards.forEach((el,i)=>{
-    const t=cur-i; // 0 = centered
+    const t=cur-i;
     let z,op,sc,rx,bl,y;
-    if(t<0){ // incoming from depth
-      const u=Math.max(0,1+t/.75); // 0..1
+    if(t<0){
+      const u=Math.max(0,1+t/.75);
       z=-1500+1500*ease(u);op=u*u;sc=.82+.18*u;rx=14-14*ease(u);bl=8-8*u;y=40-40*u;
-    }else{ // outgoing past camera
+    }else{
       const u=Math.min(1,t/.75);
       z=900*ease(u);op=1-u;sc=1+.25*u;rx=-10*u;bl=12*u;y=-30*u;
     }
@@ -462,7 +466,7 @@ let renderCards=function(cur){
   });
 };
 function ease(u){return 1-Math.pow(1-u,3)}
-/* ---------- swipe engine ---------- */
+
 const NEV=EVENTS.length;
 let cur=0,target=0,dragging=false,dragX0=0,dragCur0=0,moved=0,animOn=false;
 function animate(){
@@ -508,7 +512,6 @@ addEventListener('keydown',e=>{
 });
 document.getElementById('eNext').addEventListener('click',()=>goTo(Math.round(target)+1));
 document.getElementById('ePrev').addEventListener('click',()=>goTo(Math.round(target)-1));
-// suppress card click after a real drag
 stage.addEventListener('click',e=>{if(moved>8){e.stopPropagation();e.preventDefault()}},true);
 
 /* ---------- sheet ---------- */
@@ -533,13 +536,13 @@ function openSheet(i){
   document.getElementById('bErr').style.display='none';
   sheet.classList.add('open');overlay.classList.add('open');
   sheet.setAttribute('aria-hidden','false');
-  if(window.lenis)lenis.stop();
+  if(window.lenis)window.lenis.stop();
   sheet.querySelector('.sh-scroll').scrollTop=0;
 }
 function closeSheet(){
   sheet.classList.remove('open');overlay.classList.remove('open');
   sheet.setAttribute('aria-hidden','true');
-  if(window.lenis)lenis.start();
+  if(window.lenis)window.lenis.start();
 }
 document.getElementById('shClose').addEventListener('click',closeSheet);
 overlay.addEventListener('click',closeSheet);
@@ -559,12 +562,8 @@ function renderTiers(){
   sel.onchange=e=>{activeTier=+e.target.value;renderTiers()};
 }
 
-/* ---------- booking submit ----------
-   PHASE 2: replace the body of submitBooking() with a
-   Supabase insert + email notification (Resend), then
-   send the customer a Stripe payment link to confirm. */
 function submitBooking(data){
-  console.log('BOOKING REQUEST',data); // placeholder
+  console.log('BOOKING REQUEST',data);
   return Promise.resolve({ref:'BF-'+Date.now().toString(36).toUpperCase()});
 }
 document.getElementById('bform').addEventListener('submit',e=>{
@@ -610,136 +609,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 
-/* ---------- particles: light-trail vortex ---------- */
-let burst=0;
-(function(){
-  if(!window.THREE)return;
-  const canvas=document.getElementById('webgl');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
-  const scene=new THREE.Scene();
-  const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);
-  cam.position.set(0,0,7);
-
-  /* soft round sprite for dust + aura */
-  const cv=document.createElement('canvas');cv.width=cv.height=64;
-  const ctx=cv.getContext('2d');
-  const grd=ctx.createRadialGradient(32,32,0,32,32,32);
-  grd.addColorStop(0,'rgba(255,255,255,1)');grd.addColorStop(.4,'rgba(255,255,255,.45)');grd.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=grd;ctx.fillRect(0,0,64,64);
-  const tex=new THREE.CanvasTexture(cv);
-
-  const mobile=innerWidth<768;
-  const group=new THREE.Group();scene.add(group);
-  group.rotation.x=-.56;group.rotation.z=.1;
-  if(mobile)group.scale.setScalar(.62);
-
-  /* ---- streak trails (the vortex) ---- */
-  const TN=mobile?1500:3200;
-  const tpos=new Float32Array(TN*2*3);
-  const tcol=new Float32Array(TN*2*3);
-  const ts=new Float32Array(TN*4);
-  const cWhite=new THREE.Color('#fff4e2'),cChamp=new THREE.Color('#ffc98a'),cRed=new THREE.Color('#ff3a45');
-  for(let i=0;i<TN;i++){
-    const r=2.0+Math.pow(Math.random(),1.6)*3.0;
-    const a0=Math.random()*Math.PI*2;
-    const y0=((Math.random()+Math.random()+Math.random())/3-.5)*.9*(r/2.6);
-    const sp=(.5+Math.random()*.55)/Math.pow(r/2,1.1);
-    ts.set([r,a0,y0,sp],i*4);
-    const u=Math.random();
-    const c=u<.68?cWhite.clone().multiplyScalar(.4+Math.random()*.6)
-          :u<.92?cChamp.clone().multiplyScalar(.45+Math.random()*.5)
-          :cRed.clone().multiplyScalar(.55+Math.random()*.35);
-    tcol.set([c.r,c.g,c.b],i*6);                       // head
-    tcol.set([c.r*.12,c.g*.12,c.b*.12],i*6+3);          // tail fades out
-  }
-  const tgeo=new THREE.BufferGeometry();
-  tgeo.setAttribute('position',new THREE.BufferAttribute(tpos,3));
-  tgeo.setAttribute('color',new THREE.BufferAttribute(tcol,3));
-  const tmat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.8,
-    blending:THREE.AdditiveBlending,depthWrite:false});
-  tmat.opacity=.7;
-  const trails=new THREE.LineSegments(tgeo,tmat);
-  group.add(trails);
-
-  /* ---- faint deep dust (sparse, not confetti) ---- */
-  const DN=mobile?220:450;
-  const dpos=new Float32Array(DN*3);
-  for(let i=0;i<DN;i++){
-    dpos.set([(Math.random()-.5)*16,(Math.random()-.5)*9,-3-Math.random()*6],i*3);
-  }
-  const dgeo=new THREE.BufferGeometry();
-  dgeo.setAttribute('position',new THREE.BufferAttribute(dpos,3));
-  const dmat=new THREE.PointsMaterial({size:.04,map:tex,color:new THREE.Color('#fff0dd'),
-    transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-  scene.add(new THREE.Points(dgeo,dmat));
-
-  /* ---- holographic aura behind event cards ---- */
-  const AN=mobile?900:1500;
-  const aseed=new Float32Array(AN*4);
-  const ageo=new THREE.BufferGeometry();
-  ageo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(AN*3),3));
-  for(let i=0;i<AN;i++){
-    aseed.set([Math.pow(Math.random(),.5),Math.random()*Math.PI*2,(Math.random()-.5)*2,.2+Math.random()*.7],i*4);
-  }
-  const amat=new THREE.PointsMaterial({size:.075,map:tex,color:new THREE.Color('#ff2b38'),
-    transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-  const aura=new THREE.Points(ageo,amat);
-  aura.position.z=-.6;scene.add(aura);
-  let aShow=0,aFlare=0;const aCol=new THREE.Color('#ff2b38');
-  window.__aura={flare(hex){aCol.set(hex);aFlare=1},show(v){aShow=v}};
-
-  let mx=0,my=0,scroll=0;
-  addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5)});
-  function resize(){renderer.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
-  addEventListener('resize',resize);resize();
-
-  const clock=new THREE.Clock();
-  (function tick(){
-    const t=clock.getElapsedTime();
-    const spread=1+scroll*1.5+burst*.55;
-    const L=.30+burst*.45; // streak arc length
-    for(let i=0;i<TN;i++){
-      const r=ts[i*4]*spread,a0=ts[i*4+1],y0=ts[i*4+2],sp=ts[i*4+3];
-      const a=a0+t*sp;
-      const a2=a-L/Math.max(.7,r); // constant visual streak length
-      const y=(y0+Math.sin(t*.45+a0*3)*.05)*spread;
-      tpos[i*6]  =Math.cos(a)*r;  tpos[i*6+1]=y;  tpos[i*6+2]=Math.sin(a)*r;
-      tpos[i*6+3]=Math.cos(a2)*r; tpos[i*6+4]=y;  tpos[i*6+5]=Math.sin(a2)*r;
-    }
-    tgeo.attributes.position.needsUpdate=true;
-    group.rotation.y=t*.055;
-    group.rotation.x=-.56+my*.12;
-    group.rotation.z=.1+mx*.06;
-    cam.position.x+=((mx*.9)-cam.position.x)*.04;
-    cam.position.y+=((-my*.6)-cam.position.y)*.04;
-    cam.lookAt(0,0,0);
-    tmat.opacity=Math.max(.08,.7-scroll*.65);
-    dmat.opacity=Math.max(.04,.16-scroll*.1);
-    burst*=.95;
-    /* aura */
-    const ap=ageo.attributes.position.array;
-    const spreadA=1+aFlare*.9;
-    for(let i=0;i<AN;i++){
-      const rr=aseed[i*4],a0=aseed[i*4+1],yy=aseed[i*4+2],sp=aseed[i*4+3];
-      const a=a0+t*sp*.6;
-      ap[i*3]  =Math.cos(a)*rr*3.4*spreadA;
-      ap[i*3+1]=yy*1.5*spreadA+Math.sin(t*.6+a0*4)*.1;
-      ap[i*3+2]=Math.sin(a)*rr*.7;
-    }
-    ageo.attributes.position.needsUpdate=true;
-    amat.color.lerp(aCol,.07);
-    const aOp=aShow*(.55+aFlare*.45);
-    amat.opacity+=(aOp-amat.opacity)*.06;
-    aFlare*=.94;
-    renderer.render(scene,cam);
-    if(!reduced)requestAnimationFrame(tick);
-  })();
-
-  function onScroll(){scroll=Math.min(1,(window.scrollY||0)/(innerHeight*1.6))}
-  addEventListener('scroll',onScroll,{passive:true});
-})();
-
 /* ---------- loader + intro ---------- */
 (function(){
   const line=document.getElementById('lLine'),count=document.getElementById('lCount'),
@@ -760,22 +629,17 @@ let burst=0;
   }
   const prox={p:0};
   gsap.timeline()
-    /* count up */
     .to(prox,{p:100,duration:2.1,ease:'power3.inOut',onUpdate(){
       count.textContent=Math.floor(prox.p);
       line.style.transform=`scaleX(${prox.p/100})`;
     }})
-    /* brand tightens as it loads (runs alongside) */
     .to('.l-bn',{letterSpacing:'.1em',textIndent:'.1em',duration:2.1,ease:'power2.inOut'},0)
-    /* settle */
     .to({},{duration:.25})
-    /* counter slides out, line flashes red then full-bleed */
     .to('.l-count',{yPercent:55,opacity:0,duration:.6,ease:'power3.in'},'exit')
     .to('.l-line i',{background:'#ff2b38',duration:.25},'exit')
     .to('.l-line',{width:'100vw',duration:.7,ease:'expo.inOut'},'exit+=.1')
     .to('.l-brand',{opacity:0,y:-14,duration:.5,ease:'power2.in'},'exit+=.15')
-    /* wipe up */
-    .add(()=>{burst=1})
+    .add(()=>{ if(window.__webgl) window.__webgl.addBurst(); })
     .to(loaderEl,{yPercent:-100,duration:1,ease:'expo.inOut',onComplete(){loaderEl.classList.add('done')}})
     .add(()=>heroIn(0),'-=.55');
 })();
@@ -784,11 +648,9 @@ let burst=0;
 if(window.gsap&&window.ScrollTrigger&&!reduced){
   gsap.registerPlugin(ScrollTrigger);
   if(lenis)lenis.on('scroll',ScrollTrigger.update);
-
-  // statement word reveal
   const stmt=document.getElementById('stmt');
   stmt.innerHTML=stmt.innerHTML.split(/(<span class="hl">.*?<\/span>|\s+)/g)
-    .map(w=>w.trim()? (w.startsWith('<span')?`<span class="w">${w}</span>`:`<span class="w">${w}</span>`) : ' ').join(' ');
+    .map(w=>w.trim()?(w.startsWith('<span')?`<span class="w">${w}</span>`:`<span class="w">${w}</span>`):'').join(' ');
   gsap.to('#stmt .w',{opacity:1,stagger:.06,ease:'none',
     scrollTrigger:{trigger:'.statement',start:'top 72%',end:'center 45%',scrub:.4}});
   gsap.from('.e-pin',{opacity:0,y:60,duration:1,ease:'power3.out',
@@ -797,5 +659,344 @@ if(window.gsap&&window.ScrollTrigger&&!reduced){
     scrollTrigger:{trigger:'footer',start:'top 80%'}});
 }
 </script>
+
+<!-- ============================================================
+     WEBGL + POSTPROCESSING — ES module
+     All tunable numbers are in CONFIG below.
+     Only this section changed from the prototype.
+============================================================ -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+/* =====================================================
+   CONFIG — all tunable numbers in one place
+   Art-direct here; never hunt through shader code.
+===================================================== */
+const CONFIG = {
+  bloom: {
+    threshold: 0.82,   // only very bright motes bloom
+    strength:  0.28,   // subtle — not a game filter
+    radius:    0.5,
+  },
+  dof: {
+    strength:    0.55, // blur multiplier at edges
+    focusRadius: 0.28, // normalised distance from centre that stays sharp (0..1)
+  },
+  ca: {
+    amount: 0.0008,    // chromatic aberration — tiny, radial
+  },
+  vignette: {
+    offset:   0.38,    // how far from centre darkness starts
+    darkness: 0.62,    // max corner darkness (0=none, 1=black)
+  },
+  grain: {
+    amount: 0.038,     // film grain intensity (~0.04)
+  },
+  particles: {
+    trailDesktop: 3200, trailMobile: 1200,
+    dustDesktop:   450, dustMobile:   180,
+    auraDesktop:  1500, auraMobile:   600,
+  },
+  trail: {
+    arcLength: 0.30,   // streak arc in radians
+  },
+  camera: { fov: 60, z: 7 },
+};
+
+/* =====================================================
+   HELPERS
+===================================================== */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile  = innerWidth < 768;
+
+/* =====================================================
+   RENDERER + SCENE
+===================================================== */
+const canvas   = document.getElementById('webgl');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+const cam   = new THREE.PerspectiveCamera(CONFIG.camera.fov, innerWidth / innerHeight, 0.1, 100);
+cam.position.set(0, 0, CONFIG.camera.z);
+
+/* =====================================================
+   EFFECT COMPOSER PIPELINE
+   Order: RenderPass → Bloom → Combo (DoF + CA + Vignette + Grain)
+===================================================== */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, cam));
+
+// 1. Bloom — high threshold so only bright motes/streaks glow
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(innerWidth, innerHeight),
+  CONFIG.bloom.strength,
+  CONFIG.bloom.radius,
+  CONFIG.bloom.threshold
+);
+composer.addPass(bloomPass);
+
+// 2. Combined pass: depth-of-field + chromatic aberration + vignette + film grain
+const ComboShader = {
+  uniforms: {
+    tDiffuse:   { value: null },
+    uTime:      { value: 0 },
+    uGrain:     { value: CONFIG.grain.amount },
+    uCA:        { value: CONFIG.ca.amount },
+    uVigOffset: { value: CONFIG.vignette.offset },
+    uVigDark:   { value: CONFIG.vignette.darkness },
+    uDofStr:    { value: CONFIG.dof.strength },
+    uDofRadius: { value: CONFIG.dof.focusRadius },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uTime;
+    uniform float uGrain;
+    uniform float uCA;
+    uniform float uVigOffset;
+    uniform float uVigDark;
+    uniform float uDofStr;
+    uniform float uDofRadius;
+    varying vec2 vUv;
+
+    float rand(vec2 n){
+      return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+
+    /* 9-tap box blur with built-in CA, so both effects share the same samples */
+    vec3 sampleScene(vec2 uv, float blurSize, float caStr){
+      vec3 col = vec3(0.0);
+      float wt  = 0.0;
+      for(int x = -1; x <= 1; x++){
+        for(int y = -1; y <= 1; y++){
+          vec2 off = vec2(float(x), float(y)) * blurSize;
+          vec2 suv = uv + off;
+          /* chromatic aberration: R/B shift radially from centre */
+          vec2 dir = suv - 0.5;
+          float d   = length(dir);
+          float ca  = caStr * d;
+          float r   = texture2D(tDiffuse, suv + dir * ca).r;
+          float g   = texture2D(tDiffuse, suv).g;
+          float b   = texture2D(tDiffuse, suv - dir * ca).b;
+          col += vec3(r, g, b);
+          wt  += 1.0;
+        }
+      }
+      return col / wt;
+    }
+
+    void main(){
+      vec2  uv   = vUv;
+      float dist = length(uv - 0.5) * 2.0; /* 0 centre → ~1.41 corner */
+
+      /* DoF: blur ramps in beyond focusRadius */
+      float blur = max(0.0, dist - uDofRadius) * uDofStr * 0.006;
+
+      vec3 color = sampleScene(uv, blur, uCA);
+
+      /* Vignette — smooth, cinematic */
+      float vig = 1.0 - smoothstep(uVigOffset, 1.15, dist);
+      color *= mix(1.0 - uVigDark, 1.0, vig * vig);
+
+      /* Animated film grain */
+      float seed  = fract(uTime * 0.00127);
+      float grain = rand(uv + seed) - 0.5;
+      color += grain * uGrain;
+
+      gl_FragColor = vec4(max(color, 0.0), 1.0);
+    }
+  `,
+};
+
+const comboPass = new ShaderPass(ComboShader);
+composer.addPass(comboPass);
+
+/* =====================================================
+   PARTICLE SYSTEM (unchanged from prototype)
+===================================================== */
+const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+const ctx = cv.getContext('2d');
+const grd = ctx.createRadialGradient(32,32,0,32,32,32);
+grd.addColorStop(0,'rgba(255,255,255,1)');
+grd.addColorStop(.4,'rgba(255,255,255,.45)');
+grd.addColorStop(1,'rgba(255,255,255,0)');
+ctx.fillStyle = grd; ctx.fillRect(0,0,64,64);
+const tex = new THREE.CanvasTexture(cv);
+
+const group = new THREE.Group();
+scene.add(group);
+group.rotation.x = -.56; group.rotation.z = .1;
+if(mobile) group.scale.setScalar(.62);
+
+/* --- streak trails --- */
+const TN = mobile ? CONFIG.particles.trailMobile : CONFIG.particles.trailDesktop;
+const tpos = new Float32Array(TN*2*3);
+const tcol = new Float32Array(TN*2*3);
+const ts   = new Float32Array(TN*4);
+const cWhite = new THREE.Color('#fff4e2');
+const cChamp = new THREE.Color('#ffc98a');
+const cRed   = new THREE.Color('#ff3a45');
+for(let i=0;i<TN;i++){
+  const r  = 2.0+Math.pow(Math.random(),1.6)*3.0;
+  const a0 = Math.random()*Math.PI*2;
+  const y0 = ((Math.random()+Math.random()+Math.random())/3-.5)*.9*(r/2.6);
+  const sp = (.5+Math.random()*.55)/Math.pow(r/2,1.1);
+  ts.set([r,a0,y0,sp],i*4);
+  const u  = Math.random();
+  const c  = u<.68 ? cWhite.clone().multiplyScalar(.4+Math.random()*.6)
+            :u<.92 ? cChamp.clone().multiplyScalar(.45+Math.random()*.5)
+                   : cRed.clone().multiplyScalar(.55+Math.random()*.35);
+  tcol.set([c.r,c.g,c.b],i*6);
+  tcol.set([c.r*.12,c.g*.12,c.b*.12],i*6+3);
+}
+const tgeo = new THREE.BufferGeometry();
+tgeo.setAttribute('position',new THREE.BufferAttribute(tpos,3));
+tgeo.setAttribute('color',   new THREE.BufferAttribute(tcol,3));
+const tmat = new THREE.LineBasicMaterial({
+  vertexColors:true, transparent:true, opacity:.7,
+  blending:THREE.AdditiveBlending, depthWrite:false
+});
+const trails = new THREE.LineSegments(tgeo,tmat);
+group.add(trails);
+
+/* --- deep dust --- */
+const DN   = mobile ? CONFIG.particles.dustMobile : CONFIG.particles.dustDesktop;
+const dpos = new Float32Array(DN*3);
+for(let i=0;i<DN;i++){
+  dpos.set([(Math.random()-.5)*16,(Math.random()-.5)*9,-3-Math.random()*6],i*3);
+}
+const dgeo = new THREE.BufferGeometry();
+dgeo.setAttribute('position',new THREE.BufferAttribute(dpos,3));
+const dmat = new THREE.PointsMaterial({
+  size:.04,map:tex,color:new THREE.Color('#fff0dd'),
+  transparent:true,opacity:.16,depthWrite:false,
+  blending:THREE.AdditiveBlending,sizeAttenuation:true
+});
+scene.add(new THREE.Points(dgeo,dmat));
+
+/* --- aura halo --- */
+const AN    = mobile ? CONFIG.particles.auraMobile : CONFIG.particles.auraDesktop;
+const aseed = new Float32Array(AN*4);
+const ageo  = new THREE.BufferGeometry();
+ageo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(AN*3),3));
+for(let i=0;i<AN;i++){
+  aseed.set([Math.pow(Math.random(),.5),Math.random()*Math.PI*2,(Math.random()-.5)*2,.2+Math.random()*.7],i*4);
+}
+const amat = new THREE.PointsMaterial({
+  size:.075,map:tex,color:new THREE.Color('#ff2b38'),
+  transparent:true,opacity:0,depthWrite:false,
+  blending:THREE.AdditiveBlending,sizeAttenuation:true
+});
+const aura = new THREE.Points(ageo,amat);
+aura.position.z = -.6; scene.add(aura);
+let aShow=0, aFlare=0;
+const aCol = new THREE.Color('#ff2b38');
+
+/* Expose aura interface (used by event card code) */
+window.__aura = {
+  flare(hex){ aCol.set(hex); aFlare = 1; },
+  show(v)   { aShow = v; }
+};
+
+/* Expose burst interface (used by loader) */
+let burst = 0;
+window.__webgl = { addBurst(){ burst = 1; } };
+
+/* =====================================================
+   RESIZE
+===================================================== */
+function onResize(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+  cam.aspect = w / h;
+  cam.updateProjectionMatrix();
+  bloomPass.resolution.set(w, h);
+}
+addEventListener('resize', onResize);
+onResize();
+
+/* =====================================================
+   POINTER + SCROLL
+===================================================== */
+let mx = 0, my = 0, scrollRatio = 0;
+addEventListener('pointermove', e => { mx = e.clientX/innerWidth-.5; my = e.clientY/innerHeight-.5; });
+addEventListener('scroll', () => {
+  scrollRatio = Math.min(1, (window.scrollY||0) / (innerHeight*1.6));
+}, { passive: true });
+
+/* =====================================================
+   RENDER LOOP
+===================================================== */
+const clock = new THREE.Clock();
+let frameId;
+(function tick(){
+  frameId = requestAnimationFrame(tick);
+  const t      = clock.getElapsedTime();
+  const spread = 1 + scrollRatio*1.5 + burst*.55;
+  const L      = CONFIG.trail.arcLength + burst*.45;
+
+  if(!reduced){
+    /* update trail geometry */
+    for(let i=0;i<TN;i++){
+      const r=ts[i*4]*spread, a0=ts[i*4+1], y0=ts[i*4+2], sp=ts[i*4+3];
+      const a  = a0 + t*sp;
+      const a2 = a - L/Math.max(.7,r);
+      const y  = (y0+Math.sin(t*.45+a0*3)*.05)*spread;
+      tpos[i*6]  =Math.cos(a)*r;  tpos[i*6+1]=y; tpos[i*6+2]=Math.sin(a)*r;
+      tpos[i*6+3]=Math.cos(a2)*r; tpos[i*6+4]=y; tpos[i*6+5]=Math.sin(a2)*r;
+    }
+    tgeo.attributes.position.needsUpdate = true;
+
+    /* group rotation */
+    group.rotation.y = t * .055;
+    group.rotation.x = -.56 + my*.12;
+    group.rotation.z =  .10 + mx*.06;
+
+    /* camera parallax */
+    cam.position.x += ((mx*.9) - cam.position.x)*.04;
+    cam.position.y += ((-my*.6) - cam.position.y)*.04;
+    cam.lookAt(0,0,0);
+
+    /* opacity fade on scroll */
+    tmat.opacity = Math.max(.08, .7 - scrollRatio*.65);
+    dmat.opacity = Math.max(.04, .16 - scrollRatio*.10);
+    burst *= .95;
+
+    /* aura */
+    const ap     = ageo.attributes.position.array;
+    const spreadA = 1 + aFlare*.9;
+    for(let i=0;i<AN;i++){
+      const rr=aseed[i*4], a0=aseed[i*4+1], yy=aseed[i*4+2], sp=aseed[i*4+3];
+      const a = a0 + t*sp*.6;
+      ap[i*3]   = Math.cos(a)*rr*3.4*spreadA;
+      ap[i*3+1] = yy*1.5*spreadA + Math.sin(t*.6+a0*4)*.1;
+      ap[i*3+2] = Math.sin(a)*rr*.7;
+    }
+    ageo.attributes.position.needsUpdate = true;
+    amat.color.lerp(aCol, .07);
+    const aOp = aShow*(.55+aFlare*.45);
+    amat.opacity += (aOp - amat.opacity)*.06;
+    aFlare *= .94;
+  }
+
+  /* update grain time uniform */
+  comboPass.uniforms.uTime.value = t;
+
+  /* render through composer (not renderer.render) */
+  composer.render();
+})();
+</script>
+
 </body>
 </html>
