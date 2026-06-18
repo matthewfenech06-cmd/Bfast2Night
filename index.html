@@ -678,23 +678,23 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 ===================================================== */
 const CONFIG = {
   bloom: {
-    threshold: 0.82,   // only very bright motes bloom
-    strength:  0.28,   // subtle — not a game filter
-    radius:    0.5,
+    threshold: 0.50,   // lower = more motes catch the glow
+    strength:  0.65,   // noticeable halo on bright streaks
+    radius:    0.75,
   },
   dof: {
-    strength:    0.55, // blur multiplier at edges
-    focusRadius: 0.28, // normalised distance from centre that stays sharp (0..1)
+    strength:    1.6,  // strong edge blur so centre pops
+    focusRadius: 0.18, // tight sharp circle in the middle
   },
   ca: {
-    amount: 0.0008,    // chromatic aberration — tiny, radial
+    amount: 0.0028,    // visible colour fringe at edges
   },
   vignette: {
-    offset:   0.38,    // how far from centre darkness starts
-    darkness: 0.62,    // max corner darkness (0=none, 1=black)
+    offset:   0.28,    // darkness starts close to centre
+    darkness: 0.82,    // deep corners
   },
   grain: {
-    amount: 0.038,     // film grain intensity (~0.04)
+    amount: 0.068,     // visible film grain
   },
   particles: {
     trailDesktop: 3200, trailMobile: 1200,
@@ -911,6 +911,7 @@ window.__aura = {
 /* Expose burst interface (used by loader) */
 let burst = 0;
 window.__webgl = { addBurst(){ burst = 1; } };
+console.log('[B2N] WebGL module loaded — EffectComposer pipeline active');
 
 /* =====================================================
    RESIZE
