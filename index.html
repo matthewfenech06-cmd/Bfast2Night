@@ -459,6 +459,10 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   .nav-ig{width:36px;height:36px}
   /* HERO: clear the navbar and fit everything cleanly */
   #hero{height:auto;min-height:100svh}
+  /* on phones show the photo (instant) instead of the heavy landscape video; kill particles */
+  #hero-video{display:none}
+  #three-canvas{display:none}
+  .hero-photo{opacity:1 !important}
   .hero-c{padding:calc(var(--nav-h) + 30px) 22px 48px}
   .h-eye{font-size:.5rem;letter-spacing:.22em;margin-bottom:18px}
   .h-eye-line{display:none}
@@ -984,6 +988,8 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
 <script>
 /* ── THREE.JS PARTICLES ─────────────────────────── */
 (function(){
+  // skip the WebGL particle field on phones (battery/perf)
+  if(innerWidth<=768||!window.WebGLRenderingContext)return;
   const cv=document.getElementById('three-canvas');
   const r=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:false});
   r.setPixelRatio(Math.min(devicePixelRatio,1));
