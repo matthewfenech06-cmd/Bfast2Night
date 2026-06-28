@@ -1,1082 +1,1247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>B'FAST 2 NIGHT — Malta's Nightlife, Engineered</title>
-<meta name="description" content="B'Fast2Night Entertainment — Malta's premium events promoter. Upcoming events, tickets and VIP table bookings.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Three.js ES module importmap — lets postprocessing jsm files resolve 'three' -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>B'Fast2Night Entertainment | Malta Festival Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&display=swap" rel="stylesheet"/>
 <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --black:#060608;
-  --ink:#0c0c11;
-  --panel:#101016;
-  --line:rgba(242,240,235,.12);
-  --white:#f2f0eb;
-  --dim:#85858f;
-  --red:#ff2b38;
-  --ember:#ff7a2f;
-  --nav-h:72px;
+  --black:#000;--white:#fff;--off:#070707;--mid:#0c0c0c;
+  --border:rgba(255,255,255,.08);
+  --nav-h:110px;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-io:cubic-bezier(.77,0,.18,1);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:auto}
-html,body{background:var(--black);color:var(--white);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-::selection{background:var(--red);color:var(--black)}
+html{scroll-behavior:smooth}
+/* animated reflective border angle */
+@property --bd-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes bdSpin{to{--bd-angle:360deg}}
+/* reusable shiny border - apply .shiny-border to any element */
+.shiny-border::after{
+  content:'';position:absolute;inset:0;padding:1.5px;border-radius:inherit;
+  background:conic-gradient(from var(--bd-angle),
+    transparent 0%,rgba(255,255,255,.95) 10%,transparent 25%,
+    transparent 50%,rgba(255,255,255,.6) 60%,transparent 75%,
+    transparent 90%,rgba(255,255,255,.95) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  opacity:0;transition:opacity .45s;pointer-events:none;z-index:6;
+}
+.shiny-border:hover::after{opacity:1;animation:bdSpin 3.5s linear infinite}
+body{
+  background:var(--black);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;
+  overflow-x:hidden;cursor:none;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
 a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer}
-.mono{font-family:'Manrope',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
-.mono.red{color:var(--red)}
+img{display:block;max-width:100%}
 
-/* ---------- WEBGL CANVAS ---------- */
-#webgl{position:fixed;inset:0;z-index:0;pointer-events:none}
+/* ── CURSOR ──────────────────────────── */
+/* sleek single-dot cursor with a soft glow - no ring, no rAF loop */
+#cur{position:fixed;left:0;top:0;width:9px;height:9px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(1);box-shadow:0 0 10px rgba(255,255,255,.6),0 0 3px rgba(255,255,255,.9);transition:transform .22s var(--spring),opacity .22s}
+/* on interactive hover the dot swells gently and softens */
+body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur,body:has(.partner-card:hover) #cur,body:has(.card-item:hover) #cur,body:has(.m-card:hover) #cur{transform:translate(-50%,-50%) scale(2.6);opacity:.5}
 
-/* ---------- GRAIN ---------- */
-.grain{position:fixed;inset:-50%;z-index:60;pointer-events:none;opacity:.09;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation:grain 6s steps(8) infinite}
-@keyframes grain{0%,100%{transform:translate(0,0)}12%{transform:translate(-6%,-9%)}25%{transform:translate(5%,8%)}37%{transform:translate(-9%,4%)}50%{transform:translate(7%,-6%)}62%{transform:translate(-4%,9%)}75%{transform:translate(8%,-3%)}87%{transform:translate(-3%,-8%)}}
+/* ── LOADER - 3D logo reveal + flight ─── */
+#loader{position:fixed;inset:0;z-index:10000;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background .9s var(--ease-out)}
+#loader.bg-out{background:rgba(0,0,0,0)}
+/* radial light bloom behind logo */
+.ld-bloom{position:absolute;width:60vw;height:60vw;max-width:680px;max-height:680px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 65%);opacity:0;animation:ldBloom 1.4s var(--ease-out) .25s forwards;z-index:0}
+@keyframes ldBloom{0%{opacity:0;transform:scale(.5)}100%{opacity:1;transform:scale(1)}}
+/* expanding ring */
+.ld-ring{position:absolute;width:160px;height:160px;border:1px solid rgba(255,255,255,.25);border-radius:50%;opacity:0;z-index:0;animation:ldRing 1.6s var(--ease-out) .5s forwards}
+@keyframes ldRing{0%{opacity:0;transform:scale(.4)}40%{opacity:.7}100%{opacity:0;transform:scale(3.2)}}
+.ld-stage{position:relative;z-index:2;perspective:1300px}
+#ld-logo{
+  width:300px;height:auto;display:block;
+  transform-style:preserve-3d;
+  filter:drop-shadow(0 0 60px rgba(255,255,255,.28));
+  opacity:0;animation:ldLogoIn 1.5s cubic-bezier(.16,1,.3,1) forwards;
+  will-change:transform,opacity,filter;
+}
+@keyframes ldLogoIn{
+  0%{opacity:0;transform:rotateY(95deg) rotateX(12deg) scale(.55);filter:blur(14px) drop-shadow(0 0 0 transparent)}
+  55%{opacity:1;filter:blur(0) drop-shadow(0 0 70px rgba(255,255,255,.35))}
+  100%{opacity:1;transform:rotateY(0) rotateX(0) scale(1);filter:blur(0) drop-shadow(0 0 50px rgba(255,255,255,.25))}
+}
+/* flying state - JS sets the transform target inline */
+#ld-logo.fly{animation:none;opacity:1;transition:transform 1.15s cubic-bezier(.62,0,.2,1),filter .9s ease}
+#loader.gone{pointer-events:none;visibility:hidden;opacity:0;transition:opacity .5s,visibility 0s .5s}
+@media(max-width:768px){#ld-logo{width:200px}}
 
-/* ---------- LOADER ---------- */
-#loader{position:fixed;inset:0;z-index:100;background:var(--black);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
-#loader.done{visibility:hidden;pointer-events:none}
-.l-wordwrap{position:relative;line-height:1}
-.l-stroke{
-  font-family:'Syne',sans-serif;font-size:clamp(28px,6vw,82px);font-weight:800;
-  letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;white-space:nowrap;
-  color:transparent;-webkit-text-stroke:1px rgba(242,240,235,.22);display:block}
-.l-fill-wrap{position:absolute;inset:0;overflow:hidden;width:0}
-.l-fill{
-  font-family:'Syne',sans-serif;font-size:clamp(28px,6vw,82px);font-weight:800;
-  letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;white-space:nowrap;
-  color:var(--white);display:block}
-.l-fill .lred{color:var(--red)}
-.l-tagline{
-  margin-top:20px;font-family:'Manrope',sans-serif;font-size:9px;
-  letter-spacing:.5em;text-indent:.5em;text-transform:uppercase;
-  color:var(--dim);opacity:0;text-align:center}
-.l-bar{width:min(380px,68vw);height:1px;background:rgba(242,240,235,.08);margin-top:32px;position:relative}
-.l-bar-fill{position:absolute;left:0;top:0;height:100%;width:0%;background:var(--red)}
-.l-num{
-  position:fixed;bottom:-.08em;right:clamp(16px,3vw,44px);
-  font-family:'Syne',sans-serif;font-size:clamp(110px,20vw,260px);
-  line-height:.84;color:var(--white);opacity:.045;
-  font-variant-numeric:tabular-nums;letter-spacing:-.02em;pointer-events:none}
-.l-flash{position:fixed;inset:0;background:var(--white);opacity:0;pointer-events:none;z-index:110}
-.l-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:rgba(242,240,235,.06)}
-.l-bot-line{position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(242,240,235,.06)}
-@media(max-width:640px){.l-num{right:50%;transform:translateX(50%)}}
+/* ── NAV ─────────────────────────────── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:500;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 56px;border-bottom:1px solid transparent;transition:background .5s var(--ease-out),border-color .5s}
+#nav.scrolled{background:rgba(0,0,0,.92);border-bottom-color:var(--border)}
+/* ▼▼▼ LOGO - force large ▼▼▼ */
+.nav-logo{height:auto !important;width:220px !important;display:block;filter:drop-shadow(0 2px 24px rgba(255,255,255,.15));transition:opacity .25s,transform .4s var(--spring)}
+.nav-logo:hover{opacity:.75;transform:scale(1.04)}
+.nav-right{display:flex;align-items:center;gap:30px}
+.nav-ig{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid rgba(255,255,255,.2);border-radius:50%;color:#fff;opacity:.65;cursor:none;transition:opacity .25s,border-color .3s,transform .4s var(--spring),background .3s}
+.nav-ig:hover{opacity:1;border-color:#fff;transform:scale(1.08) translateY(-1px);background:rgba(255,255,255,.08)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-weight:700;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;opacity:.5;cursor:none;display:inline-block;position:relative;transition:opacity .2s,transform .35s var(--spring)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--white);transition:width .4s var(--ease-out)}
+.nav-links a:hover{opacity:1;transform:translateY(-1px)}
+.nav-links a:hover::after{width:100%}
+.hamburger{display:none;flex-direction:column;gap:6px;background:none;border:none;cursor:none;padding:4px}
+.hamburger span{display:block;width:26px;height:1.5px;background:var(--white)}
 
-/* ---------- CUSTOM CURSOR ---------- */
-#cur{position:fixed;top:0;left:0;width:32px;height:32px;z-index:9999;pointer-events:none;margin:-16px 0 0 -16px;mix-blend-mode:difference}
-.cur-ring{width:32px;height:32px;border:1.5px solid rgba(242,240,235,.9);border-radius:50%;transition:transform .25s cubic-bezier(.23,1,.32,1),border-color .25s}
-.cur-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;background:var(--white);border-radius:50%;transform:translate(-50%,-50%);transition:transform .25s}
-.cur-label{position:absolute;top:50%;left:calc(100% + 10px);transform:translateY(-50%);font-family:'Manrope',sans-serif;font-size:8px;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;opacity:0;transition:opacity .2s}
-#cur.hover .cur-ring{transform:scale(2.1);border-color:var(--red)}
-#cur.hover .cur-dot{transform:translate(-50%,-50%) scale(0)}
-#cur.hover .cur-label{opacity:1}
-#cur.drag .cur-ring{transform:scale(1.6);border-color:var(--white)}
-#cur.drag .cur-label{opacity:1}
-@media(hover:none){#cur{display:none}}
-/* ---------- NAV ---------- */
-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,48px);mix-blend-mode:difference}
-nav .logo{font-family:'Syne',sans-serif;font-size:17px;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
-nav .logo .peace{color:var(--red)}
-nav .links{display:flex;gap:28px}
-nav .links a{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;position:relative;padding:6px 0}
-nav .links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--white);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.65,0,.35,1)}
-nav .links a:hover::after{transform:scaleX(1);transform-origin:left}
-@media(max-width:640px){nav .links{gap:16px}nav .links a:nth-child(2){display:none}nav .logo{font-size:13px}}
+/* ── HERO ────────────────────────────── */
+#hero{position:relative;width:100%;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+.hero-photo{position:absolute;inset:0;z-index:0}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.07);animation:hZoom 24s ease-in-out infinite alternate;will-change:transform}
+@keyframes hZoom{0%{transform:scale(1.07)}100%{transform:scale(1.0)}}
+/* video hidden by default - shown only if real video loads */
+#hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity 1s}
+#hero-video.playing{opacity:1}
+#three-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.hero-ov{position:absolute;inset:0;z-index:3;background:linear-gradient(180deg,rgba(0,0,0,.22) 0%,rgba(0,0,0,.38) 40%,rgba(0,0,0,.85) 100%)}
+.hero-c{position:relative;z-index:4;text-align:left;padding:calc(var(--nav-h) + 26px) 56px 32px;max-width:100%;width:100%}
 
-/* ---------- HERO ---------- */
-.hero{position:relative;z-index:2;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 20px}
-.hero::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1100px,96vw);height:62vh;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(6,6,8,.78),rgba(6,6,8,.35) 55%,transparent 75%);pointer-events:none}
-.hero>*{position:relative}
-.hero .h-kicker{margin-bottom:22px;opacity:0}
-.hero h1{font-family:'Syne',sans-serif;font-size:clamp(44px,10.5vw,148px);line-height:.96;letter-spacing:-.01em;text-transform:uppercase}
-.hero h1 .row:nth-child(2) span{font-size:.62em;color:transparent;-webkit-text-stroke:1.5px var(--white);letter-spacing:.14em;text-indent:.14em}
-.hero h1 .row{display:block;overflow:hidden}
-.hero h1 .row span{display:inline-block;transform:translateY(110%)}
-.hero h1 .peace{color:var(--red);display:inline-block;transform-origin:bottom;font-style:normal;padding:0 .04em}
-.hero .h-sub{margin-top:26px;max-width:420px;color:var(--dim);font-weight:300;font-size:15px;line-height:1.6;opacity:0}
-.hero .h-scroll{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
-.hero .h-scroll .tick{width:1px;height:42px;background:var(--line);position:relative;overflow:hidden}
-.hero .h-scroll .tick i{position:absolute;top:-100%;left:0;width:100%;height:100%;background:var(--red);animation:drop 1.8s cubic-bezier(.65,0,.35,1) infinite}
-@keyframes drop{to{top:100%}}
-.hero .h-meta{position:absolute;bottom:34px;font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;opacity:0}
-.hero .h-meta.left{left:clamp(18px,4vw,48px)}
-.hero .h-meta.right{right:clamp(18px,4vw,48px)}
-@media(max-width:760px){.hero .h-meta{display:none}}
+.h-eye{display:inline-flex;align-items:center;gap:14px;font-size:.6rem;font-weight:700;letter-spacing:.38em;text-transform:uppercase;opacity:0;margin-bottom:24px;animation:fadeUp .7s var(--ease-out) 2.55s forwards}
+.h-eye-line{width:28px;height:1px;background:rgba(255,255,255,.35)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:.6;transform:none}}
 
-/* ---------- STATEMENT ---------- */
-.statement{position:relative;z-index:2;padding:24vh clamp(20px,8vw,12vw)}
-.statement p{font-family:'Manrope',sans-serif;font-weight:300;font-size:clamp(26px,4.2vw,54px);line-height:1.25;max-width:1100px}
-.statement p .w{display:inline-block;opacity:.12}
-.statement p .hl{color:var(--red)}
-.statement .s-label{margin-bottom:34px}
+/* HERO TITLE */
+.h-title{font-size:clamp(2.4rem,4.8vw,5rem);font-weight:900;text-transform:uppercase;line-height:.95;letter-spacing:-.02em;margin-bottom:24px}
+.h-line{display:block;overflow:hidden}
+.h-inner{display:block;transform:translateY(108%);will-change:transform}
+.h-line:nth-child(1) .h-inner{animation:lineUp .9s var(--ease-out) 2.7s forwards}
+.h-line:nth-child(2) .h-inner{animation:lineUp .9s var(--ease-out) 2.84s forwards}
+.h-line:nth-child(3) .h-inner{animation:lineUp .9s var(--ease-out) 2.98s forwards}
+.h-line:nth-child(4) .h-inner{animation:lineUp .9s var(--ease-out) 3.12s forwards}
+@keyframes lineUp{to{transform:translateY(0)}}
 
-/* ---------- EVENTS (3D stage) ---------- */
-.events{position:relative;z-index:2}
-.e-pin{height:100svh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.e-head{position:absolute;top:calc(var(--nav-h) + 10px);left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:0 clamp(18px,4vw,48px);z-index:5;pointer-events:none}
-.events h2{font-family:'Syne',sans-serif;font-size:clamp(20px,2.9vw,36px);line-height:1;text-transform:uppercase}
-.events h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--white)}
-.e-prog{text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-.e-prog .nums{font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.18em;color:var(--white)}
-.e-prog .nums b{color:var(--red);font-weight:400}
-.e-prog .bar{width:120px;height:1px;background:var(--line);position:relative}
-.e-prog .bar i{position:absolute;left:0;top:0;height:100%;background:var(--red);width:0%}
-.e-stage{position:relative;width:100%;height:100%;perspective:1200px;perspective-origin:50% 46%;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
-.e-stage:active{cursor:grabbing}
-.e-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(12,12,17,.55);backdrop-filter:blur(6px);color:var(--white);display:grid;place-items:center;transition:.3s}
-.e-arrow:hover{border-color:var(--red);color:var(--red)}
-.e-arrow.prev{left:clamp(10px,2.5vw,36px)}
-.e-arrow.next{right:clamp(10px,2.5vw,36px)}
-@media(max-width:640px){.e-arrow{width:42px;height:42px}.e-arrow.prev{left:8px}.e-arrow.next{right:8px}}
-.events.static .e-arrow{display:none}
-.e3d{position:absolute;left:50%;top:50%;width:min(820px,86vw);transform:translate(-50%,-50%);opacity:0;will-change:transform,opacity,filter;cursor:pointer}
-.e3d .panel{position:relative;border:1px solid rgba(242,240,235,.16);background:linear-gradient(135deg,rgba(242,240,235,.07),rgba(242,240,235,.015) 55%,rgba(242,240,235,.05));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:clamp(26px,4.5vw,52px);overflow:hidden;transform-style:preserve-3d}
-.e3d .panel::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(242,240,235,.025) 0 1px,transparent 1px 4px);pointer-events:none}
-.e3d .panel::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 90% 130% at 78% 18%,var(--glow,rgba(255,43,56,.18)),transparent 55%);pointer-events:none;mix-blend-mode:screen}
-.e3d[data-hue="offweek"]{--glow:rgba(255,43,56,.22);--hue:#ff2b38}
-.e3d[data-hue="zamna"]{--glow:rgba(255,122,47,.20);--hue:#ff7a2f}
-.e3d[data-hue="fridays"]{--glow:rgba(61,255,140,.16);--hue:#3dff8c}
-.e3d .corner{position:absolute;width:14px;height:14px;border-color:var(--hue);border-style:solid;opacity:.9}
-.e3d .corner.tl{top:-1px;left:-1px;border-width:1px 0 0 1px}
-.e3d .corner.tr{top:-1px;right:-1px;border-width:1px 1px 0 0}
-.e3d .corner.bl{bottom:-1px;left:-1px;border-width:0 0 1px 1px}
-.e3d .corner.br{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
-.e3d .p-top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:clamp(22px,4vh,44px)}
-.e3d .p-tag{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--hue)}
-.e3d .p-idx{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--dim)}
-.e3d .p-date{font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
-.e3d .p-date b{color:var(--white);font-size:15px}
-.e3d h3{font-family:'Syne',sans-serif;font-size:clamp(24px,4.6vw,58px);line-height:1.05;text-transform:uppercase;letter-spacing:0}
-.e3d .p-venue{margin-top:16px;font-weight:300;color:var(--dim);font-size:14px;letter-spacing:.04em}
-.e3d .p-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:clamp(24px,4.5vh,50px);gap:14px;flex-wrap:wrap}
-.e3d .p-open{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--hue);color:var(--white);padding:13px 22px;border-radius:99px;display:inline-flex;gap:10px;align-items:center;transition:.3s;background:transparent}
-.e3d:hover .p-open{background:var(--hue);color:var(--black)}
-.e3d .p-hint{font-family:'Manrope',sans-serif;font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
-.e-scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;display:flex;gap:10px;align-items:center}
-@media(max-width:640px){.e3d .p-hint{display:none}.e-prog .bar{width:70px}}
-.events.static .e-pin{height:auto;overflow:visible;display:block;padding:16vh 0 10vh}
-.events.static .e-head{position:static;margin-bottom:40px}
-.events.static .e-stage{perspective:none;height:auto}
-.events.static .e3d{position:relative;left:auto;top:auto;transform:none!important;opacity:1!important;filter:none!important;pointer-events:auto!important;margin:28px auto}
-.events.static .e-scrollhint{display:none}
+.h-sub{font-size:1.05rem;font-weight:300;line-height:1.65;max-width:500px;margin-bottom:28px;opacity:0;animation:fadeUp .9s ease 3.3s forwards;letter-spacing:.01em}
+.h-ctas{display:flex;gap:14px;flex-wrap:wrap;padding-bottom:0;opacity:0;animation:fadeUp .8s ease 3.5s forwards}
 
-/* ---------- BRANDS MARQUEE ---------- */
-.brands{position:relative;z-index:2;padding:10vh 0;border-top:1px solid var(--line);overflow:hidden}
-.brands .b-label{text-align:center;margin-bottom:36px}
-.marquee{display:flex;gap:0;width:max-content;animation:scrollx 28s linear infinite}
-.marquee span{font-family:'Syne',sans-serif;font-size:clamp(26px,4.6vw,56px);text-transform:uppercase;white-space:nowrap;padding:0 34px;color:transparent;-webkit-text-stroke:1px rgba(242,240,235,.25);transition:.3s}
-.marquee span:hover{color:var(--white);-webkit-text-stroke:1px transparent}
-@keyframes scrollx{to{transform:translateX(-50%)}}
+/* ── BUTTONS ─────────────────────────── */
+.btn-p{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:56px;padding:0 44px 4px;white-space:nowrap;border:1.5px solid var(--white);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;cursor:none;position:relative;overflow:hidden;transition:color .32s,transform .35s var(--spring),box-shadow .35s}
+.btn-p::before{content:'';position:absolute;inset:0;background:var(--white);transform:translateX(-101%);transition:transform .38s var(--ease-io)}
+.btn-p:hover::before{transform:translateX(0)}
+.btn-p:hover{color:var(--black);transform:scale(1.02);box-shadow:0 10px 36px rgba(255,255,255,.14)}
+.btn-p:active{transform:scale(.97)}
+.btn-p span,.b-arr{position:relative;z-index:1}
+.b-arr{transition:transform .4s var(--spring);display:inline-block}
+.btn-p:hover .b-arr{transform:translateX(6px)}
+.btn-g{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 44px 4px;white-space:nowrap;border:1.5px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.55);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;cursor:none;transition:border-color .3s,color .3s,transform .35s var(--spring)}
+.btn-g:hover{border-color:rgba(255,255,255,.65);color:var(--white);transform:scale(1.02)}
+.btn-g:active{transform:scale(.97)}
 
-/* ---------- CONTACT / FOOTER ---------- */
-footer{position:relative;z-index:2;border-top:1px solid var(--line);padding:14vh clamp(18px,4vw,48px) 40px}
-footer .f-big{font-family:'Syne',sans-serif;font-size:clamp(30px,6vw,84px);text-transform:uppercase;line-height:1.04;margin:18px 0 40px}
-footer .f-big a{position:relative}
-footer .f-big a::after{content:"";position:absolute;left:0;bottom:6px;width:100%;height:3px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.65,0,.35,1)}
-footer .f-big a:hover::after{transform:scaleX(1);transform-origin:left}
-footer .f-grid{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end}
-footer .f-grid .col{display:flex;flex-direction:column;gap:8px}
-footer .f-grid a:hover{color:var(--red)}
-footer .f-base{margin-top:60px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.h-scroll{position:absolute;bottom:42px;right:56px;left:auto;z-index:4;display:flex;align-items:center;gap:14px;opacity:0;font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;animation:scrollShow .6s ease 3.9s forwards}
+@keyframes scrollShow{to{opacity:.35}}
+.h-scroll-line{width:44px;height:1px;background:rgba(255,255,255,.4);transform:scaleX(0);transform-origin:left;animation:lineGrow 1.2s var(--ease-out) 4.1s forwards}
+@keyframes lineGrow{to{transform:scaleX(1)}}
 
-/* ---------- EVENT OVERLAY ---------- */
-.overlay{position:fixed;inset:0;z-index:80;background:rgba(6,6,8,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:.45s}
-.overlay.open{opacity:1;visibility:visible}
-.sheet{position:fixed;top:0;right:0;bottom:0;z-index:90;width:min(640px,100vw);background:var(--ink);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .6s cubic-bezier(.7,0,.25,1);display:flex;flex-direction:column}
-.sheet.open{transform:translateX(0)}
-.sheet .sh-top{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,4vw,36px);border-bottom:1px solid var(--line);flex-shrink:0}
-.sheet .sh-close{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--white);display:grid;place-items:center;transition:.3s}
-.sheet .sh-close:hover{background:var(--red);border-color:var(--red);transform:rotate(90deg)}
-.sheet .sh-scroll{overflow-y:auto;padding:30px clamp(20px,4vw,36px) 60px;flex:1}
-.sheet h3{font-family:'Syne',sans-serif;font-size:clamp(26px,4.2vw,42px);line-height:1.08;text-transform:uppercase;margin:8px 0 18px}
-.sheet .sh-meta{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
-.sheet .sh-meta div{background:var(--ink);padding:14px 16px}
-.sheet .sh-meta .mono{display:block;margin-bottom:5px;font-size:10px}
-.sheet .sh-desc{color:var(--dim);font-weight:300;line-height:1.65;font-size:15px}
-.sheet .sh-tix{display:inline-flex;align-items:center;gap:10px;margin-top:20px;font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--line);padding:13px 20px;border-radius:99px;transition:.3s}
-.sheet .sh-tix:hover{border-color:var(--white)}
-.sheet .sh-divider{margin:42px 0 26px;display:flex;align-items:center;gap:14px}
-.sheet .sh-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+/* ── MARQUEE ─────────────────────────── */
+#marq{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#030303;overflow:hidden;padding:16px 0;white-space:nowrap}
+.marq-t{display:inline-flex;animation:marq 28s linear infinite}
+.marq-i{display:inline-flex;align-items:center;font-size:.6rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;opacity:.32;padding:0 36px}
+.marq-d{width:3px;height:3px;background:var(--white);border-radius:50%;opacity:.3;margin-right:36px}
+@keyframes marq{to{transform:translateX(-50%)}}
 
-/* tiers */
-.tier{border:1px solid var(--line);padding:18px;margin-bottom:12px;cursor:pointer;position:relative;transition:.3s;background:var(--panel)}
-.tier:hover{border-color:rgba(242,240,235,.4)}
-.tier.sel{border-color:var(--red)}
-.tier.sel::after{content:"SELECTED";position:absolute;top:14px;right:14px;font-family:'Manrope',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--red)}
-.tier .t-name{font-family:'Syne',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:.02em}
-.tier .t-price{font-family:'Manrope',sans-serif;font-size:13px;color:var(--red);margin:6px 0 8px}
-.tier .t-desc{font-size:13px;color:var(--dim);font-weight:300;line-height:1.55}
-.sheet .t-note{font-size:12px;color:var(--dim);font-weight:300;line-height:1.6;margin:14px 0 0;padding-left:14px;border-left:2px solid var(--red)}
+/* ── STATS ───────────────────────────── */
+#stats{position:relative;overflow:hidden}
+.stats-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.14;z-index:0;filter:grayscale(60%)}
+.stats-bg-ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.6),transparent,rgba(0,0,0,.6));z-index:1}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);position:relative;z-index:2}
+.stat-box{padding:100px 40px;text-align:center;border-right:1px solid var(--border);position:relative;overflow:hidden;cursor:default;transition:transform .45s var(--spring)}
+.stat-box:last-child{border-right:none}
+.stat-box::before{content:'';position:absolute;inset:0;background:var(--white);transform:scaleY(0);transform-origin:bottom;transition:transform .55s var(--ease-io);z-index:0}
+.stat-box:hover::before{transform:scaleY(1)}
+.stat-box:hover{transform:translateY(-4px)}
+.stat-n,.stat-l{position:relative;z-index:1;transition:color .3s}
+.stat-box:hover .stat-n,.stat-box:hover .stat-l{color:var(--black)}
+.stat-n{font-size:clamp(5rem,9vw,10rem);font-weight:900;line-height:1;letter-spacing:-.04em;margin-bottom:10px}
+.stat-l{font-size:.6rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;opacity:.38}
 
-/* form */
-.bform{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.bform .full{grid-column:1/-1}
-.bform label{display:block}
-.bform label .mono{display:block;margin-bottom:8px;font-size:10px}
-.bform input,.bform select,.bform textarea{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--white);font-family:'Manrope',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .3s;border-radius:0;-webkit-appearance:none}
-.bform input:focus,.bform select:focus,.bform textarea:focus{border-color:var(--red)}
-.bform textarea{resize:vertical;min-height:80px}
-.bform .submit{grid-column:1/-1;margin-top:8px;background:var(--red);border:1px solid var(--red);color:var(--white);font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:17px;transition:.3s}
-.bform .submit:hover{background:transparent;color:var(--red)}
-.bform .err{grid-column:1/-1;color:var(--red);font-size:12px;display:none}
-.bsuccess{display:none;margin-top:26px;border:1px solid var(--red);padding:26px}
-.bsuccess h4{font-family:'Syne',sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:10px}
-.bsuccess p{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6}
-.bsuccess .ref{font-family:'Manrope',sans-serif;color:var(--white);font-size:13px;margin-top:14px;display:block}
-@media(max-width:520px){.bform{grid-template-columns:1fr}}
+/* ── SECTION BASE ────────────────────── */
+.sec{padding:160px 0;border-top:1px solid var(--border)}
+/* skip rendering work for text-only sections far off-screen (image-heavy ones excluded to avoid paint spikes) */
+#why,#contact{content-visibility:auto;contain-intrinsic-size:auto 700px}
+.container{max-width:1300px;margin:0 auto;padding:0 56px}
+.s-tag{font-size:.6rem;font-weight:700;letter-spacing:.38em;text-transform:uppercase;opacity:.3;display:block;margin-bottom:20px}
+.s-ttl{font-size:clamp(3rem,6.5vw,6.5rem);font-weight:900;text-transform:uppercase;letter-spacing:.01em;line-height:.9}
 
-@media(prefers-reduced-motion:reduce){
-  .grain,.marquee,.hero .h-scroll .tick i{animation:none}
+/* ── SCROLL REVEAL ───────────────────── */
+.sr {opacity:0;transform:translateY(22px);will-change:opacity,transform;transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.sr2{opacity:0;transform:translateY(22px);will-change:opacity,transform;transition:opacity .8s var(--ease-out) .14s,transform .8s var(--ease-out) .14s}
+.sr3{opacity:0;transform:translateY(22px);will-change:opacity,transform;transition:opacity .8s var(--ease-out) .28s,transform .8s var(--ease-out) .28s}
+.sr.on,.sr2.on,.sr3.on{opacity:1;transform:none;will-change:auto}
+
+/* ── ABOUT ───────────────────────────── */
+#about{position:relative;overflow:hidden}
+.about-wm{position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:20vw;font-weight:900;text-transform:uppercase;opacity:.035;line-height:1;pointer-events:none;white-space:nowrap;letter-spacing:-.03em;z-index:0}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;position:relative;z-index:1}
+.about-kicker{font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;opacity:.28}
+.about-text{font-size:1.1rem;font-weight:300;line-height:1.9;opacity:.62;margin-top:28px}
+.about-text p+p{margin-top:18px}
+.about-img-w{position:relative;transform-style:preserve-3d;will-change:transform;transition:transform .7s cubic-bezier(.22,1.2,.36,1)}
+.about-img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center top;display:block;transition:transform .7s var(--spring)}
+.about-img-w:hover .about-img{transform:scale(1.03)}
+.about-img-w .a-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);transition:transform 1s var(--ease-out);z-index:2}
+.about-img-w:hover .a-shine{transform:translateX(120%)}
+.about-border{position:absolute;inset:0;border:1px solid rgba(255,255,255,.18);transform:translate(20px,20px);z-index:-1;transition:transform .5s var(--spring)}
+.about-img-w:hover .about-border{transform:translate(8px,8px)}
+.about-stat-row{display:flex;gap:40px;margin-top:40px;padding-top:40px;border-top:1px solid var(--border)}
+.about-stat .n{font-size:3.5rem;font-weight:900;line-height:1;letter-spacing:-.03em}
+.about-stat .l{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.3;margin-top:4px}
+
+/* ── SERVICES ────────────────────────── */
+#services{position:relative;overflow:hidden}
+.svc-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.1;filter:grayscale(50%);z-index:0}
+.svc-bg-ov{position:absolute;inset:0;background:rgba(0,0,0,.7);z-index:1}
+.svc-inner{position:relative;z-index:2}
+.svc-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:80px}
+.svc-desc{max-width:340px;font-size:1rem;font-weight:300;opacity:.45;line-height:1.75}
+.svc-grid{display:grid;grid-template-columns:repeat(5,1fr);perspective:1400px}
+.card-wrap{cursor:none}
+/* siblings recede + dim when grid is hovered */
+.svc-grid:hover .card-wrap:not(:hover) .card-item{opacity:.5}
+.card-item{
+  background:linear-gradient(160deg,#1c1c1c 0%,#101010 100%);
+  border:1px solid rgba(255,255,255,.16);
+  border-right:none;
+  min-height:420px;padding:44px 30px 36px;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;will-change:transform,opacity,filter;
+  transition:box-shadow .5s,background .4s,border-color .4s,opacity .45s var(--ease-out),filter .45s var(--ease-out),transform .65s cubic-bezier(.34,1.56,.64,1);
+}
+/* light sweep / sheen across the card */
+.card-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.18) 48%,transparent 62%);transform:translateX(-120%);transition:transform .9s var(--ease-out);z-index:3}
+.card-item:hover .card-shine{transform:translateX(120%)}
+.card-wrap:last-child .card-item{border-right:1px solid rgba(255,255,255,.16)}
+.card-glow{position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s}
+.card-item:hover .card-glow{opacity:1}
+.c-accent{width:0;height:2px;background:var(--white);position:absolute;top:0;left:0;transition:width .55s var(--ease-out)}
+.card-item:hover .c-accent{width:100%}
+.c-num{font-size:5.5rem;font-weight:900;line-height:1;letter-spacing:-.03em;opacity:.4;margin-bottom:auto;transition:opacity .4s,transform .55s var(--spring),text-shadow .5s;transform:translateZ(0)}
+.card-item:hover .c-num{opacity:1;transform:translateZ(60px) translateY(-6px);text-shadow:0 12px 40px rgba(0,0,0,.8)}
+.c-name{font-size:.95rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding-top:18px;border-top:1px solid rgba(255,255,255,.2);transition:border-color .4s,transform .55s var(--spring);transform:translateZ(0)}
+.card-item:hover .c-name{border-color:rgba(255,255,255,.6);transform:translateZ(40px)}
+.c-details{transform:translateZ(30px)}
+.c-details{list-style:none;overflow:hidden;max-height:0;opacity:0;margin-top:0;transition:max-height .5s var(--ease-out),opacity .35s,margin-top .4s}
+.card-item:hover .c-details{max-height:240px;opacity:1;margin-top:14px}
+.c-details li{font-size:.85rem;font-weight:400;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);opacity:.78}
+.c-details li:last-child{border-bottom:none}
+
+/* ── TRUSTED - sleek partner cards ───── */
+.partners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px}
+.partner-card{position:relative;height:340px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:none;
+  transform:translateZ(0);will-change:transform;backface-visibility:hidden;contain:layout paint;
+  transition:transform .5s var(--ease-out),border-color .45s,box-shadow .5s}
+.partner-card:hover{transform:translateY(-8px);border-color:rgba(255,255,255,.28);box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.partner-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;backface-visibility:hidden}
+/* dim/reveal via cheap overlay opacity - no image filters, no per-frame JS */
+.partner-card .partner-ov{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.8) 100%);transition:opacity .45s}
+.partner-card:hover .partner-ov{opacity:.6}
+.partner-shine{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.16) 50%,transparent 60%);transform:translateX(-130%);will-change:transform;transition:transform .8s var(--ease-out)}
+.partner-card:hover .partner-shine{transform:translateX(130%)}
+.partner-body{position:absolute;inset:0;z-index:3;padding:34px 30px;display:flex;flex-direction:column;justify-content:flex-end}
+.partner-yr{font-size:.58rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;opacity:.6;margin-bottom:10px}
+.partner-name{font-size:1.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.01em;line-height:1;margin-bottom:14px}
+.partner-line{height:2px;width:34px;background:#fff;transition:width .5s var(--ease-out)}
+.partner-card:hover .partner-line{width:80px}
+@media(max-width:820px){.partners-grid{grid-template-columns:1fr}.partner-card{height:260px}}
+
+/* ── PHOTO STRIP ─────────────────────── */
+.photo-strip{display:grid;grid-template-columns:repeat(4,1fr);height:360px;border-top:1px solid var(--border)}
+.ps-item{overflow:hidden;position:relative}
+.ps-item img{width:100%;height:100%;object-fit:cover;filter:grayscale(25%);transition:transform .8s var(--spring),filter .5s;will-change:transform}
+.ps-item::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.3);transition:opacity .4s;z-index:1}
+.ps-item:hover::after{opacity:0}
+.ps-item:hover img{transform:scale(1.08);filter:grayscale(0%)}
+.ps-item::before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.25) 50%,transparent 65%);transform:translateX(-130%);transition:transform 1s var(--ease-out)}
+.ps-item:hover::before{transform:translateX(130%)}
+
+/* ── WHY MALTA - premium readable cards ── */
+#malta{position:relative;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#141414 0%,#000 60%)}
+.malta-inner{position:relative;z-index:2}
+.malta-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px}
+.malta-head .m-lead{max-width:300px;font-size:1rem;font-weight:300;opacity:.45;line-height:1.7}
+.malta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:64px}
+.m-card{
+  position:relative;overflow:hidden;
+  padding:48px 40px 44px;
+  background:linear-gradient(165deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.015) 100%);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:4px;
+  transition:transform .55s var(--spring),border-color .45s,background .45s;
+}
+.m-card:hover{transform:translateY(-10px);border-color:rgba(255,255,255,.32);background:linear-gradient(165deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,.03) 100%)}
+/* sweeping light bar that draws across the top on hover */
+.m-card .m-bar{position:absolute;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,.2));transition:width .6s var(--ease-out)}
+.m-card:hover .m-bar{width:100%}
+/* soft radial spotlight that fades in */
+.m-card .m-spot{position:absolute;top:-30%;right:-20%;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);opacity:0;transition:opacity .5s,transform .7s var(--spring)}
+.m-card:hover .m-spot{opacity:1;transform:scale(1.2)}
+.m-ico{position:relative;z-index:1;font-size:2.4rem;line-height:1;margin-bottom:26px;display:block;transition:transform .55s var(--spring)}
+.m-card:hover .m-ico{transform:scale(1.12) translateY(-2px)}
+.m-num{position:relative;z-index:1;font-size:.7rem;font-weight:700;letter-spacing:.3em;opacity:.4;display:block;margin-bottom:14px}
+.m-title{position:relative;z-index:1;font-size:1.25rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#fff;line-height:1.15;margin-bottom:14px}
+.m-desc{position:relative;z-index:1;font-size:.95rem;font-weight:300;opacity:.6;line-height:1.65}
+@media(max-width:1100px){.malta-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.malta-grid{grid-template-columns:1fr}}
+
+/* ── ARTISTS ─────────────────────────── */
+#artists{position:relative;overflow:hidden}
+.art-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.09;filter:grayscale(50%);z-index:0}
+.art-bg-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.75) 100%);z-index:1}
+.art-inner{position:relative;z-index:2}
+.tier-lbl{font-size:.58rem;font-weight:700;letter-spacing:.34em;text-transform:uppercase;opacity:.24;display:block;margin-bottom:22px}
+.t1{display:flex;flex-wrap:wrap;column-gap:18px;margin-bottom:52px}
+.t1 span{font-size:clamp(1.1rem,2vw,1.7rem);font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.75;cursor:default;padding:2px 0;transition:opacity .2s,transform .35s var(--spring);display:inline-block}
+.t1 span:hover{opacity:1;transform:translateY(-2px)}
+.t2{display:flex;flex-wrap:wrap;column-gap:12px;padding-top:34px;border-top:1px solid var(--border)}
+.t2 span{font-size:.88rem;font-weight:400;text-transform:uppercase;letter-spacing:.04em;opacity:.26;cursor:default;transition:opacity .2s}
+.t2 span:hover{opacity:.7}
+.img-strip{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:80px}
+.is-item{overflow:hidden}
+.is-item img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center top;filter:grayscale(20%);transition:transform .7s var(--spring),filter .5s;will-change:transform}
+.is-item:hover img{transform:scale(1.05);filter:grayscale(0%)}
+
+/* ── WHY US ──────────────────────────── */
+#why{position:relative}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:72px;border-top:1px solid var(--border)}
+.why-item{display:flex;align-items:flex-start;gap:18px;padding:24px 0;border-bottom:1px solid var(--border);transition:transform .35s var(--spring),background .3s}
+.why-item:hover{transform:translateX(5px)}
+.why-chk{font-weight:900;opacity:.3;flex-shrink:0;margin-top:2px;font-size:1rem;transition:opacity .2s}
+.why-t{font-size:1rem;font-weight:400;letter-spacing:.02em;opacity:.58;transition:opacity .2s;line-height:1.5}
+.why-item:hover .why-chk,.why-item:hover .why-t{opacity:1}
+
+/* ── PARTNER CTA ─────────────────────── */
+#partner{position:relative;overflow:hidden;border-top:1px solid var(--border)}
+.p-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:grayscale(20%);transition:transform 8s ease;transform:scale(1.0)}
+#partner:hover .p-bg{transform:scale(1.05)}
+.p-ov{position:absolute;inset:0;background:rgba(0,0,0,.78);z-index:1}
+.p-inner{position:relative;z-index:2;text-align:center;padding:200px 56px}
+.p-ttl{font-size:clamp(4rem,10vw,10rem);font-weight:900;text-transform:uppercase;letter-spacing:.01em;line-height:.88;margin-bottom:32px}
+.p-sub{font-size:1.15rem;font-weight:300;opacity:.52;max-width:520px;margin:0 auto 56px;line-height:1.8}
+
+/* ── CONTACT ─────────────────────────── */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px;margin-top:72px}
+.c-lbl{font-size:.6rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.26;display:block;margin-bottom:8px}
+.c-mail{font-size:1.25rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.78;transition:opacity .2s,transform .35s var(--spring);cursor:none;display:inline-block}
+.c-mail:hover{opacity:1;transform:translateX(4px)}
+.c-blk{margin-bottom:38px}
+.c-soc{display:flex;gap:10px;margin-top:44px}
+.soc-btn{display:flex;align-items:center;gap:10px;border:1px solid var(--border);padding:13px 22px;font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.5;cursor:none;transition:all .3s var(--spring)}
+.soc-btn:hover{opacity:1;border-color:var(--white);background:var(--white);color:var(--black);transform:translateY(-2px)}
+.c-form{display:flex;flex-direction:column;gap:12px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.c-form input,.c-form textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;letter-spacing:.02em;padding:16px 18px;outline:none;resize:none;border-radius:3px;transition:border-color .25s,background .25s,box-shadow .25s}
+.c-form input::placeholder,.c-form textarea::placeholder{color:rgba(255,255,255,.5);letter-spacing:.04em}
+.c-form input:focus,.c-form textarea:focus{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+.c-form textarea{min-height:130px}
+.f-sub{align-self:flex-start;padding:15px 48px;background:transparent;border:1.5px solid var(--white);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;cursor:none;position:relative;overflow:hidden;transition:color .32s,transform .35s var(--spring)}
+.f-sub::before{content:'';position:absolute;inset:0;background:var(--white);transform:translateX(-101%);transition:transform .38s var(--ease-io)}
+.f-sub:hover::before{transform:translateX(0)}
+.f-sub:hover{color:var(--black);transform:scale(1.02)}
+.f-sub:active{transform:scale(.97)}
+.f-sub span{position:relative;z-index:1}
+
+/* ── EVENTS ──────────────────────────── */
+#events{position:relative;overflow:hidden;background:radial-gradient(130% 90% at 50% 0%,#161616 0%,#000 55%)}
+.ev-inner{position:relative;z-index:2}
+.ev-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:64px}
+.ev-lead{max-width:320px;font-size:1rem;font-weight:300;opacity:.45;line-height:1.7}
+.ev-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;perspective:1600px}
+.ev-card{
+  position:relative;height:480px;border-radius:6px;overflow:hidden;
+  cursor:none;transform-style:preserve-3d;will-change:transform;
+  border:1px solid rgba(255,255,255,.12);
+  transition:box-shadow .5s,border-color .45s;
+  background:#0a0a0a;
+}
+.ev-card img.ev-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s var(--spring),filter .6s;filter:grayscale(15%) brightness(.85);z-index:0}
+.ev-card:hover img.ev-bg{transform:scale(1.08);filter:grayscale(0%) brightness(1)}
+.ev-grad{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,.94) 100%)}
+.ev-shine{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-130%);transition:transform 1s var(--ease-out)}
+.ev-card:hover .ev-shine{transform:translateX(130%)}
+.ev-date{position:absolute;top:26px;left:26px;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;width:74px;height:74px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.25);border-radius:5px;transition:transform .55s var(--spring)}
+.ev-card:hover .ev-date{transform:translateZ(50px) scale(1.05)}
+.ev-date .d{font-size:1.9rem;font-weight:900;line-height:.9}
+.ev-date .m{font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.8;margin-top:3px}
+.ev-status{position:absolute;top:30px;right:26px;z-index:4;font-size:.55rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:6px 12px;border-radius:30px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.6)}
+.ev-status.past{opacity:.5}
+.ev-body{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:36px 34px;transform:translateZ(30px)}
+.ev-tag{font-size:.58rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;opacity:.6;display:block;margin-bottom:12px}
+.ev-name{font-size:clamp(1.8rem,2.6vw,2.6rem);font-weight:900;text-transform:uppercase;line-height:.95;letter-spacing:-.01em;margin-bottom:14px}
+.ev-meta{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:300;opacity:.65;margin-bottom:22px}
+.ev-meta svg{flex-shrink:0;opacity:.7}
+.ev-open{display:inline-flex;align-items:center;gap:10px;font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .5s var(--spring)}
+.ev-card:hover .ev-open{opacity:1;transform:none}
+.ev-open .arr{transition:transform .4s var(--spring)}
+.ev-card:hover .ev-open .arr{transform:translateX(5px)}
+
+/* ── EVENT MODAL ─────────────────────── */
+#ev-modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
+#ev-modal.open{opacity:1;visibility:visible;transition:opacity .4s}
+.evm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.evm-box{position:relative;z-index:1;width:100%;max-width:920px;max-height:88vh;overflow:hidden;background:#0b0b0b;border:1px solid rgba(255,255,255,.16);border-radius:8px;display:grid;grid-template-columns:1fr 1fr;transform:scale(.92) translateY(20px);opacity:0;transition:transform .5s var(--spring),opacity .4s}
+#ev-modal.open .evm-box{transform:scale(1) translateY(0);opacity:1}
+.evm-img{position:relative;overflow:hidden;min-height:420px}
+.evm-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.evm-content{padding:48px 44px;overflow-y:auto;display:flex;flex-direction:column}
+.evm-tag{font-size:.6rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;opacity:.4;margin-bottom:14px}
+.evm-name{font-size:2.1rem;font-weight:900;text-transform:uppercase;line-height:.96;letter-spacing:-.01em;margin-bottom:22px}
+.evm-row{display:flex;align-items:center;gap:11px;font-size:.92rem;font-weight:300;opacity:.7;margin-bottom:10px}
+.evm-row svg{flex-shrink:0;opacity:.7}
+.evm-desc{font-size:.98rem;font-weight:300;line-height:1.75;opacity:.62;margin:22px 0}
+.evm-line-lbl{font-size:.58rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;opacity:.4;margin-bottom:12px}
+.evm-lineup{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.evm-lineup span{font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:7px 14px;border:1px solid rgba(255,255,255,.18);border-radius:30px;opacity:.85}
+.evm-buy{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:18px 40px;background:var(--white);color:var(--black);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;border-radius:4px;cursor:none;transition:transform .35s var(--spring),box-shadow .35s;position:relative;overflow:hidden}
+.evm-buy:hover{transform:scale(1.03);box-shadow:0 14px 40px rgba(255,255,255,.2)}
+.evm-buy:active{transform:scale(.98)}
+.evm-buy .arr{transition:transform .4s var(--spring)}
+.evm-buy:hover .arr{transform:translateX(6px)}
+.evm-close{position:absolute;top:18px;right:18px;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.5);color:#fff;font-size:1.3rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:transform .35s var(--spring),background .3s}
+.evm-close:hover{transform:rotate(90deg);background:rgba(255,255,255,.15)}
+@media(max-width:820px){
+  .ev-grid{grid-template-columns:1fr}
+  .ev-card{height:420px}
+  .evm-box{grid-template-columns:1fr;max-height:90vh;overflow-y:auto}
+  .evm-img{min-height:240px;height:240px}
+  .evm-content{padding:34px 26px}
 }
 
-/* display type */
-.hero h1,.events h2,.e3d h3,.sheet h3,nav .logo,#loader .l-bn,#loader .l-count,footer .f-big,.tier .t-name,.bsuccess h4,.marquee span{font-weight:800;letter-spacing:.005em}
+/* ── LOGO REVIEW ─────────────────────── */
+#logo-review{padding:120px 56px;border-top:2px dashed rgba(255,255,255,.08)}
+.lr-badge{display:inline-block;border:1px dashed rgba(255,255,255,.2);padding:7px 18px;font-size:.58rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;opacity:.32;margin-bottom:56px}
+.lr-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.lr-card{display:flex;flex-direction:column}
+.lr-sw{display:flex;align-items:center;justify-content:center;padding:48px 16px;min-height:168px}
+.lr-sw img{max-width:100%;max-height:72px;object-fit:contain}
+.lr-lbl{padding:12px 14px;font-size:.58rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.bg-bk{background:#000}.bg-wh{background:#fff}.bg-dk{background:#0d0d0d}
+.bg-ck{background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0;background-color:#fff}
+.lw{color:#fff;border-top:1px solid rgba(255,255,255,.07)}
+.lb{color:#000;border-top:1px solid rgba(0,0,0,.1)}
+
+/* ── LOGO SWITCHER ───────────────────── */
+#sw{position:fixed;bottom:28px;left:50%;z-index:600;transform:translateX(-50%);background:rgba(0,0,0,.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.14);padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:.55rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;transition:transform .5s var(--spring)}
+#sw.hide{transform:translateX(-50%) translateY(130px);pointer-events:none}
+.sw-lbl{opacity:.3}
+.sw-btn{width:52px;height:52px;border:1px solid rgba(255,255,255,.15);background:#111;display:flex;align-items:center;justify-content:center;cursor:none;overflow:hidden;padding:5px;flex-shrink:0;transition:border-color .25s,transform .35s var(--spring)}
+.sw-btn img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.sw-btn.active{border-color:var(--white)}
+.sw-btn:hover{border-color:rgba(255,255,255,.6);transform:translateY(-3px) scale(1.06)}
+.sw-x{background:none;border:none;color:var(--white);font-size:1.3rem;cursor:none;opacity:.3;padding:0 4px;margin-left:4px;transition:opacity .2s,transform .3s var(--spring)}
+.sw-x:hover{opacity:1;transform:rotate(90deg)}
+
+/* ── FOOTER ──────────────────────────── */
+footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.f-logo{height:56px;opacity:.44;transition:opacity .25s,transform .4s var(--spring)}
+.f-logo:hover{opacity:.8;transform:scale(1.04)}
+.f-copy{font-size:.6rem;font-weight:300;letter-spacing:.15em;text-transform:uppercase;opacity:.18}
+
+/* ── MOBILE ──────────────────────────── */
+@media(max-width:1100px){
+  .svc-grid{grid-template-columns:repeat(3,1fr)}
+  .card-wrap:nth-child(3) .card-flip{border-right:1px solid rgba(255,255,255,.1)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .lr-grid{grid-template-columns:repeat(3,1fr)}
+  .malta-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  :root{--nav-h:72px}
+  #nav{padding:0 20px}
+  .nav-logo{height:52px !important}
+  .hero-c{padding:0 20px}
+  .h-scroll{right:20px;left:auto}
+  .container{padding:0 20px}
+  #logo-review{padding:80px 20px}
+  footer{padding:40px 20px 28px;flex-direction:column;align-items:flex-start}
+  .nav-links{display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(0,0,0,.97);flex-direction:column;align-items:center;padding:24px 0;gap:0}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:14px 0;font-size:1rem}
+  .hamburger{display:flex}
+  #cur{display:none}
+  body{cursor:auto}
+  a,button{cursor:pointer}
+  .about-grid,.contact-grid,.why-grid{grid-template-columns:1fr}
+  .about-grid{gap:44px}
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .card-wrap{height:340px}
+  .malta-grid{grid-template-columns:1fr 1fr}
+  .malta-side-img{display:none}
+  .img-strip{grid-template-columns:1fr}
+  .photo-strip{grid-template-columns:repeat(2,1fr);height:220px}
+  .t-n{padding:24px 20px;font-size:clamp(2rem,9vw,4rem)}
+  .t-y{padding:0 12px}.t-a{padding:0 20px}
+  .lr-grid{grid-template-columns:repeat(2,1fr)}
+  .h-ctas{flex-direction:column;align-items:flex-start}
+  .f-row{grid-template-columns:1fr}
+  .sec{padding:100px 0}
+  .p-inner{padding:130px 20px}
+  .about-stat-row{flex-direction:column;gap:20px}
+}
+@media(max-width:480px){
+  .svc-grid,.malta-grid{grid-template-columns:1fr}
+  .lr-grid{grid-template-columns:1fr 1fr}
+  .why-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<canvas id="webgl"></canvas>
-<div class="grain"></div>
-
 <!-- LOADER -->
 <div id="loader">
-  <div class="l-top-line"></div>
-  <div class="l-wordwrap">
-    <span class="l-stroke">B'FAST&nbsp;2&nbsp;NIGHT</span>
-    <span class="l-fill-wrap" id="lFillWrap"><span class="l-fill">B'FAST&nbsp;<span class="lred">2</span>&nbsp;NIGHT</span></span>
+  <div class="ld-bloom"></div>
+  <div class="ld-ring"></div>
+  <div class="ld-stage">
+    <img id="ld-logo" src="2 WHITE - No Backround.png" alt="B'Fast2Night"/>
   </div>
-  <p class="l-tagline">Entertainment &middot; Malta</p>
-  <div class="l-bar"><div class="l-bar-fill" id="lBarFill"></div></div>
-  <div class="l-num" id="lCount">000</div>
-  <div class="l-flash" id="lFlash"></div>
-  <div class="l-bot-line"></div>
 </div>
 
 <!-- CURSOR -->
-<div id="cur">
-  <div class="cur-ring"></div>
-  <div class="cur-dot"></div>
-  <span class="cur-label" id="curLabel"></span>
-</div>
+<div id="cur"></div>
 
 <!-- NAV -->
-<nav>
-  <a class="logo" href="#top">B'FAST<span class="peace">2</span>NIGHT</a>
-  <div class="links">
-    <a href="#events">Events</a>
-    <a href="#events">VIP Tables</a>
-    <a href="#contact">Contact</a>
+<nav id="nav">
+  <a href="#hero"><img class="nav-logo" id="nav-logo" src="2 WHITE - No Backround.png" alt="B'Fast2Night Entertainment"/></a>
+  <div class="nav-right">
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#artists">Artists</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a class="nav-ig" href="https://instagram.com/bfast2night" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <button class="hamburger" id="hmbgr"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
 <!-- HERO -->
-<header class="hero" id="top">
-  <div class="h-kicker mono red">Malta — Est. on the dancefloor</div>
-  <h1>
-    <span class="row"><span>B'FAST<em class="peace">2</em>NIGHT</span></span>
-    <span class="row"><span>ENTERTAINMENT</span></span>
-  </h1>
-  <p class="h-sub">From sunset beach stages to sold-out club takeovers — we build the nights Malta talks about the morning after.</p>
-  <div class="h-meta left">Sky Club · Gianpula · Palm Beach</div>
-  <div class="h-scroll"><span class="mono">Scroll</span><span class="tick"><i></i></span></div>
-  <div class="h-meta right">Season 2026</div>
-</header>
-
-<!-- STATEMENT -->
-<section class="statement">
-  <div class="s-label mono red">01 — Who we are</div>
-  <p id="stmt">We are the promoters behind <span class="hl">Zamna Malta</span>, <span class="hl">OFFWEEK</span> and the island's most talked-about club nights. World-class artists, festival-scale production, and VIP service engineered down to the last detail.</p>
+<section id="hero">
+  <div class="hero-photo">
+    <img src="ZAMNA-15052026-KMG-31.jpg" alt="B'Fast2Night at Zamna Malta"/>
+  </div>
+  <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="ZAMNA-15052026-KMG-31.jpg">
+    <source src="hero-reel.mp4" type="video/mp4"/>
+  </video>
+  <canvas id="three-canvas"></canvas>
+  <div class="hero-ov"></div>
+  <div class="hero-c">
+    <div class="h-eye"><span class="h-eye-line"></span>Malta's Premier Festival Operations Company<span class="h-eye-line"></span></div>
+    <h1 class="h-title" id="hero-title">
+      <span class="h-line"><span class="h-inner">BRINGING</span></span>
+      <span class="h-line"><span class="h-inner">WORLD-CLASS</span></span>
+      <span class="h-line"><span class="h-inner">FESTIVALS</span></span>
+      <span class="h-line"><span class="h-inner">TO MALTA</span></span>
+    </h1>
+    <p class="h-sub">The experienced local partner international brands trust to launch and deliver world-class festivals in Malta. Proven on major events, from concept to final breakdown.</p>
+    <div class="h-ctas">
+      <a href="#contact" class="btn-p"><span>Partner With Us</span><span class="b-arr">→</span></a>
+      <a href="#about" class="btn-g">Learn More</a>
+    </div>
+  </div>
+  <div class="h-scroll"><span>Scroll</span><span class="h-scroll-line"></span></div>
 </section>
 
+<!-- MARQUEE -->
+<div id="marq">
+  <div class="marq-t">
+    <span class="marq-i"><span class="marq-d"></span>Festival Operations</span>
+    <span class="marq-i"><span class="marq-d"></span>Artist Bookings</span>
+    <span class="marq-i"><span class="marq-d"></span>Stage Production</span>
+    <span class="marq-i"><span class="marq-d"></span>Zamna Malta</span>
+    <span class="marq-i"><span class="marq-d"></span>Offweek</span>
+    <span class="marq-i"><span class="marq-d"></span>Sound &amp; Lighting</span>
+    <span class="marq-i"><span class="marq-d"></span>Malta Events</span>
+    <span class="marq-i"><span class="marq-d"></span>VIP Handling</span>
+    <span class="marq-i"><span class="marq-d"></span>Destination Festivals</span>
+    <span class="marq-i"><span class="marq-d"></span>International Artists</span>
+    <span class="marq-i"><span class="marq-d"></span>Festival Operations</span>
+    <span class="marq-i"><span class="marq-d"></span>Artist Bookings</span>
+    <span class="marq-i"><span class="marq-d"></span>Stage Production</span>
+    <span class="marq-i"><span class="marq-d"></span>Zamna Malta</span>
+    <span class="marq-i"><span class="marq-d"></span>Offweek</span>
+    <span class="marq-i"><span class="marq-d"></span>Sound &amp; Lighting</span>
+    <span class="marq-i"><span class="marq-d"></span>Malta Events</span>
+    <span class="marq-i"><span class="marq-d"></span>VIP Handling</span>
+    <span class="marq-i"><span class="marq-d"></span>Destination Festivals</span>
+    <span class="marq-i"><span class="marq-d"></span>International Artists</span>
+  </div>
+</div>
+
 <!-- EVENTS -->
-<section class="events" id="events">
-  <div class="e-pin">
-    <div class="e-head">
-      <h2>Upcoming<br><em>Events</em></h2>
-      <div class="e-prog">
-        <span class="nums"><b id="pNow">01</b> / <span id="pTotal">03</span></span>
-        <span class="bar"><i id="pBar"></i></span>
-        <span class="mono" id="pName"></span>
+<section id="events" class="sec" style="border-top:none">
+  <div class="container ev-inner">
+    <div class="ev-head">
+      <div>
+        <span class="s-tag sr">What's On</span>
+        <h2 class="s-ttl sr2">Upcoming Events</h2>
       </div>
+      <p class="ev-lead sr3">Click any event for the full lineup, details and tickets.</p>
     </div>
-    <div class="e-stage" id="eStage"></div>
-    <button class="e-arrow prev" id="ePrev" aria-label="Previous event"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2L4 8l6 6"/></svg></button>
-    <button class="e-arrow next" id="eNext" aria-label="Next event"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l6 6-6 6"/></svg></button>
-    <div class="e-scrollhint"><span class="mono">Swipe / drag to explore</span></div>
+    <div class="ev-grid sr">
+
+      <div class="ev-card"
+        data-tag="Beach Party"
+        data-name="Bongo Porn • Armier Beach Party"
+        data-img="https://showshappening.blob.core.windows.net/content/events/flyers/bongo-porn-armier-beach-party-28-june-2026-c5f63690-7200-4711-99ca-aa6f594dcd19.jpeg"
+        data-date="Sunday 28 June 2026"
+        data-time="2PM onwards"
+        data-venue="Palm Beach, Armier, Il-Mellieħa, Malta"
+        data-desc="The People's Beach Party returns. An annual summer tradition bringing the true Bongo vibe to the shore. Beach stage, non-stop music, sunset moments and the sexiest crowd on the island. 17+."
+        data-lineup="Kosmo Kint|Mux|Pajsu|Braynod|Miggy|Medici|Fly|Denzel|Jo Armani|Hottie"
+        data-link="https://www.showshappening.com/bfast2night/bongo-porn-armier-beach-party-28-june-2026"
+        data-status="On Sale">
+        <img class="ev-bg" src="https://showshappening.blob.core.windows.net/content/events/flyers/bongo-porn-armier-beach-party-28-june-2026-c5f63690-7200-4711-99ca-aa6f594dcd19.jpeg" alt="Bongo Porn Armier Beach Party" loading="lazy" onerror="this.src='ZAMNA-15052026-KMG-17.jpg'"/>
+        <div class="ev-grad"></div><div class="ev-shine"></div>
+        <div class="ev-date"><span class="d">28</span><span class="m">Jun</span></div>
+        <span class="ev-status">On Sale</span>
+        <div class="ev-body">
+          <span class="ev-tag">Beach Party</span>
+          <h3 class="ev-name">Bongo Porn<br/>Armier Beach</h3>
+          <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Palm Beach, Armier · Malta</div>
+          <span class="ev-open">View Details<span class="arr">→</span></span>
+        </div>
+      </div>
+
+      <div class="ev-card"
+        data-tag="Club Night"
+        data-name="OFFWEEK Malta"
+        data-img="https://gianpulavillage.com/wp-content/uploads/2026/05/Post_Malta-scaled.png"
+        data-date="Saturday 11 July 2026"
+        data-time="21:00 to 04:00 (doors 21:00)"
+        data-venue="Gianpula Main Room, Malta"
+        data-desc="OFFWEEK, the internationally recognised brand born in Barcelona with a residency at Hi Ibiza, brings its signature underground experience to Malta. Expect top-level production, an international crowd and the energy OFFWEEK is known for across Europe. Tickets from €20."
+        data-lineup="Agents of Time|ZSS|Mary Mesk|Laherte|Hyus|Mux|Fly b2b Medici"
+        data-link="https://gianpulavillage.com/upcoming_events/offweek-malta/"
+        data-status="On Sale">
+        <img class="ev-bg" src="https://gianpulavillage.com/wp-content/uploads/2026/05/Post_Malta-scaled.png" alt="OFFWEEK Malta" loading="lazy" onerror="this.src='ZAMNA-15052026-KMG-26.jpg'"/>
+        <div class="ev-grad"></div><div class="ev-shine"></div>
+        <div class="ev-date"><span class="d">11</span><span class="m">Jul</span></div>
+        <span class="ev-status">On Sale</span>
+        <div class="ev-body">
+          <span class="ev-tag">Club Night</span>
+          <h3 class="ev-name">OFFWEEK<br/>Malta</h3>
+          <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Gianpula Main Room · Malta</div>
+          <span class="ev-open">View Details<span class="arr">→</span></span>
+        </div>
+      </div>
+
+      <div class="ev-card"
+        data-tag="Beach Festival"
+        data-name="Zamna On The Beach Malta"
+        data-img="https://showshappening.blob.core.windows.net/content/events/flyers/zamna-on-the-beach-malta-e949eb7e-f986-49a7-adf3-d8d12ae2c0c2.png"
+        data-date="Sunday 9 August 2026"
+        data-time="4PM to 11PM"
+        data-venue="Palm Beach, Armier, Malta"
+        data-desc="An open-air beach experience running from the afternoon through sunset on Mediterranean shores. Sunset energy, crystal-clear waters and the signature magic that makes Zamna events so special around the world. 17+."
+        data-lineup="Korolova|ZSS|Hilde|Mux|Braynod"
+        data-link="https://www.showshappening.com/bfast2night/zamna-on-the-beach-malta"
+        data-status="On Sale">
+        <img class="ev-bg" src="https://showshappening.blob.core.windows.net/content/events/flyers/zamna-on-the-beach-malta-e949eb7e-f986-49a7-adf3-d8d12ae2c0c2.png" alt="Zamna On The Beach Malta" loading="lazy" onerror="this.src='ZAMNA-15052026-KMG-31.jpg'"/>
+        <div class="ev-grad"></div><div class="ev-shine"></div>
+        <div class="ev-date"><span class="d">09</span><span class="m">Aug</span></div>
+        <span class="ev-status">On Sale</span>
+        <div class="ev-body">
+          <span class="ev-tag">Beach Festival</span>
+          <h3 class="ev-name">Zamna On<br/>The Beach</h3>
+          <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Palm Beach · Il-Mellieħa, Malta</div>
+          <span class="ev-open">View Details<span class="arr">→</span></span>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
-<!-- BRANDS -->
-<section class="brands">
-  <div class="b-label mono red">Our nights</div>
-  <div class="marquee" id="marquee">
-    <span>Zamna Malta</span><span>·</span><span>Offweek</span><span>·</span><span>Bongo P*rn</span><span>·</span><span>Out of Office</span><span>·</span><span>French Fridays</span><span>·</span>
+<!-- STATS -->
+<section id="stats">
+  <img class="stats-bg-img" src="ZAMNA-15052026-KMG-24.jpg" alt="" aria-hidden="true" loading="lazy"/>
+  <div class="stats-bg-ov"></div>
+  <div class="stats-grid">
+    <div class="stat-box sr"><div class="stat-n" data-t="7">0</div><div class="stat-l">Years Experience</div></div>
+    <div class="stat-box sr2"><div class="stat-n" data-t="250">0</div><div class="stat-l">Events Delivered</div></div>
+    <div class="stat-box sr3"><div class="stat-n" data-t="60">0</div><div class="stat-l">International Artists</div></div>
+    <div class="stat-box sr" style="transition-delay:.38s"><div class="stat-n" data-t="65">0</div><div class="stat-l">Countries Reached</div></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="sec">
+  <div class="container" style="position:relative">
+    <span class="about-wm" aria-hidden="true">MALTA</span>
+    <div class="about-grid">
+      <div>
+        <span class="s-tag sr">Who We Are</span>
+        <h2 class="s-ttl sr2">Malta's Premier<br/>Festival Company</h2>
+        <div class="about-text sr3">
+          <p>B'Fast2Night Entertainment is a Malta-based event management and festival operations company specialising in large-scale electronic music events, destination festivals, and international brand collaborations.</p>
+          <p>From initial concept to final breakdown, our team manages every aspect of event delivery, allowing international brands to enter the Maltese market with confidence while maintaining their global standards.</p>
+        </div>
+        <div class="about-stat-row sr3">
+          <div class="about-stat"><div class="n">250+</div><div class="l">Events Delivered</div></div>
+          <div class="about-stat"><div class="n">7+</div><div class="l">Years Active</div></div>
+          <div class="about-stat"><div class="n">60+</div><div class="l">Artists Hosted</div></div>
+        </div>
+      </div>
+      <div class="about-img-w sr2" id="about-img-tilt">
+        <img class="about-img" src="ZAMNA-15052026-KMG-8.jpg" alt="B'Fast2Night at Zamna Malta" loading="lazy"/>
+        <div class="a-shine"></div>
+        <div class="about-border"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="sec">
+  <img class="svc-bg" src="ZAMNA-15052026-KMG-34.jpg" alt="" aria-hidden="true" loading="lazy"/>
+  <div class="svc-bg-ov"></div>
+  <div class="container svc-inner">
+    <div class="svc-header">
+      <div>
+        <span class="s-tag sr">What We Do</span>
+        <h2 class="s-ttl sr2">Our Services</h2>
+      </div>
+      <p class="svc-desc sr3">Hover each card to flip and explore what we deliver.</p>
+    </div>
+    <div class="svc-grid sr">
+      <div class="card-wrap"><div class="card-item shiny-border">
+        <div class="card-glow"></div><div class="c-accent"></div><div class="card-shine"></div>
+        <div class="c-num">01</div>
+        <div class="c-name">Festival Operations</div>
+        <ul class="c-details"><li>Full Operations Execution</li><li>Venue Management</li><li>Budget Management</li></ul>
+      </div></div>
+      <div class="card-wrap"><div class="card-item shiny-border">
+        <div class="card-glow"></div><div class="c-accent"></div><div class="card-shine"></div>
+        <div class="c-num">02</div>
+        <div class="c-name">Production</div>
+        <ul class="c-details"><li>Stage Design</li><li>Sound &amp; Lighting</li><li>Technical Production</li><li>Supplier Management</li></ul>
+      </div></div>
+      <div class="card-wrap"><div class="card-item shiny-border">
+        <div class="card-glow"></div><div class="c-accent"></div><div class="card-shine"></div>
+        <div class="c-num">03</div>
+        <div class="c-name">Artists</div>
+        <ul class="c-details"><li>Bookings</li><li>Advancing</li><li>Hospitality</li><li>VIP Handling</li></ul>
+      </div></div>
+      <div class="card-wrap"><div class="card-item shiny-border">
+        <div class="card-glow"></div><div class="c-accent"></div><div class="card-shine"></div>
+        <div class="c-num">04</div>
+        <div class="c-name">Logistics</div>
+        <ul class="c-details"><li>Staffing &amp; Crew</li><li>Security</li><li>Transport</li><li>Accreditation</li></ul>
+      </div></div>
+      <div class="card-wrap"><div class="card-item shiny-border">
+        <div class="card-glow"></div><div class="c-accent"></div><div class="card-shine"></div>
+        <div class="c-num">05</div>
+        <div class="c-name">Strategic Partnerships</div>
+        <ul class="c-details"><li>Brand Alignment</li><li>Festival Strategy</li><li>International Collaboration</li><li>Destination Development</li></ul>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUSTED -->
+<section id="trusted" class="sec" style="padding-bottom:0">
+  <div class="container">
+    <span class="s-tag sr">Our Partners</span>
+    <h2 class="s-ttl sr2">International Brands<br/>We Work With</h2>
+    <div class="partners-grid sr">
+      <div class="partner-card">
+        <img src="ZAMNA-15052026-KMG-31.jpg" alt="Zamna Festival" loading="lazy" decoding="async"/>
+        <div class="partner-ov"></div><div class="partner-shine"></div>
+        <div class="partner-body">
+          <span class="partner-yr">2022 to 2025</span>
+          <h3 class="partner-name">Zamna Festival</h3>
+          <span class="partner-line"></span>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="ZAMNA-15052026-KMG-26.jpg" alt="Offweek" loading="lazy" decoding="async"/>
+        <div class="partner-ov"></div><div class="partner-shine"></div>
+        <div class="partner-body">
+          <span class="partner-yr">2023 to 2025</span>
+          <h3 class="partner-name">Offweek</h3>
+          <span class="partner-line"></span>
+        </div>
+      </div>
+      <div class="partner-card">
+        <img src="ZAMNA-15052026-KMG-5.jpg" alt="Zamna On The Beach" loading="lazy" decoding="async"/>
+        <div class="partner-ov"></div><div class="partner-shine"></div>
+        <div class="partner-body">
+          <span class="partner-yr">2024 to 2025</span>
+          <h3 class="partner-name">Zamna On The Beach</h3>
+          <span class="partner-line"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY MALTA -->
+<section id="malta" class="sec">
+  <div class="container malta-inner">
+    <div class="malta-head">
+      <div>
+        <span class="s-tag sr">The Destination</span>
+        <h2 class="s-ttl sr2">Why Malta</h2>
+      </div>
+      <p class="m-lead sr3">Six reasons the Mediterranean's best-kept secret is the perfect stage for world-class festivals.</p>
+    </div>
+    <div class="malta-grid sr">
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">☀</span><span class="m-num">01</span>
+        <h3 class="m-title">300+ Days of Sunshine</h3>
+        <p class="m-desc">Mediterranean climate perfect for outdoor festivals year-round.</p>
+      </div>
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">★</span><span class="m-num">02</span>
+        <h3 class="m-title">Strong Tourism Infrastructure</h3>
+        <p class="m-desc">World-class hotels and hospitality for international attendees.</p>
+      </div>
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">◆</span><span class="m-num">03</span>
+        <h3 class="m-title">Government Support Scheme</h3>
+        <p class="m-desc">Active backing for major international entertainment events.</p>
+      </div>
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">✈</span><span class="m-num">04</span>
+        <h3 class="m-title">Major European Air Connectivity</h3>
+        <p class="m-desc">Direct routes from 40+ European cities.</p>
+      </div>
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">◈</span><span class="m-num">05</span>
+        <h3 class="m-title">World-Class Venues</h3>
+        <p class="m-desc">Unique historic and beach venues with natural staging.</p>
+      </div>
+      <div class="m-card"><span class="m-bar"></span><span class="m-spot"></span>
+        <span class="m-ico">⬢</span><span class="m-num">06</span>
+        <h3 class="m-title">English Speaking Market</h3>
+        <p class="m-desc">Bilingual population enabling seamless international operations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTISTS -->
+<section id="artists" class="sec">
+  <img class="art-bg" src="ZAMNA-15052026-KMG-53.jpg" alt="" aria-hidden="true" loading="lazy"/>
+  <div class="art-bg-ov"></div>
+  <div class="container art-inner">
+    <span class="s-tag sr">The Talent</span>
+    <h2 class="s-ttl sr2" style="margin-bottom:56px">Artists Hosted</h2>
+    <span class="tier-lbl sr">Headliners &amp; Key Acts</span>
+    <div class="t1 sr2">
+      <span>Agents of Time</span><span>Andrea Oliva</span><span>CamelPhat</span><span>Chris Avantgarde</span>
+      <span>Claptone</span><span>Dubdogz</span><span>Fideles</span><span>Gordo</span>
+      <span>Green Velvet</span><span>Hot Since 82</span><span>Innellea</span><span>Kasia</span>
+      <span>Korolova</span><span>Layla Benitez</span><span>Maceo Plex</span><span>Massano</span>
+      <span>Mathame</span><span>Mind Against</span><span>MoBlack</span><span>Rebuke</span>
+      <span>Rivo</span><span>Stephan Bodzin</span><span>The Element</span><span>ZSS</span>
+    </div>
+    <span class="tier-lbl sr">Supporting Acts</span>
+    <div class="t2 sr2">
+      <span>19:26</span><span>Afshin Momadi</span><span>Adam Sellouk</span><span>Aisha</span>
+      <span>Ale De Tuglie</span><span>Anagarde</span><span>Armonica</span><span>Belladonna</span>
+      <span>Calvin Clarke</span><span>Dish Dash</span><span>DLV</span><span>Dyzen</span>
+      <span>Eran Hersh</span><span>Flex UK</span><span>Franky B</span><span>Gianni Romano</span>
+      <span>Henri Bergmann</span><span>Hunter/Game</span><span>Isa Roos</span><span>Josh Gigante</span>
+      <span>Josh Lane</span><span>Magit Cacoon</span><span>Mariano Mellino</span><span>Marino Canal</span>
+      <span>Matt Guy</span><span>Matt Sassari</span><span>Moojo</span><span>Omnya</span>
+      <span>Olympe</span><span>Øostil</span><span>Quliano</span><span>Radio Slave</span>
+      <span>Ruback</span><span>Rozyo</span><span>Sam Shure</span><span>Sante Sansone</span>
+      <span>Sean Doron</span><span>Sideral</span><span>Skala</span><span>Stylo</span>
+      <span>Toto Chiavetta</span><span>Vltra</span><span>Yet More</span><span>Yubik</span>
+    </div>
+    <div class="img-strip sr3">
+      <div class="is-item"><img src="ZAMNA-15052026-KMG-1.jpg" alt="Zamna Malta" loading="lazy"/></div>
+      <div class="is-item"><img src="ZAMNA-15052026-KMG-38.jpg" alt="Zamna Malta crowd" loading="lazy"/></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why" class="sec">
+  <div class="container">
+    <span class="s-tag sr">Our Track Record</span>
+    <h2 class="s-ttl sr2">Why B'Fast2Night</h2>
+    <div class="why-grid sr">
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">7+ Years of Experience in the Events Industry</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">250+ Events Delivered Across Malta</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">60+ International Artists Hosted</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">65+ Countries Represented Through Our Events</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Proven Track Record with Zamna Malta, 3 Consecutive Years</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">International Festival Experience</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Extensive Local Market Knowledge</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Established Relationships with Leading Venues &amp; Suppliers</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">End-to-End Operational Delivery</span></div>
+      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Single Point of Contact for All Local Operations</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENT MODAL -->
+<div id="ev-modal">
+  <div class="evm-backdrop" id="evm-backdrop"></div>
+  <div class="evm-box">
+    <button class="evm-close" id="evm-close">×</button>
+    <div class="evm-img"><img id="evm-img" src="" alt=""/></div>
+    <div class="evm-content">
+      <span class="evm-tag" id="evm-tag"></span>
+      <h3 class="evm-name" id="evm-name"></h3>
+      <div class="evm-row" id="evm-date-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span id="evm-date"></span></div>
+      <div class="evm-row" id="evm-time-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="evm-time"></span></div>
+      <div class="evm-row" id="evm-venue-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="evm-venue"></span></div>
+      <p class="evm-desc" id="evm-desc"></p>
+      <div id="evm-lineup-wrap" style="display:none">
+        <div class="evm-line-lbl">Lineup</div>
+        <div class="evm-lineup" id="evm-lineup"></div>
+      </div>
+      <a class="evm-buy" id="evm-buy" href="#" target="_blank" rel="noopener">Buy Tickets<span class="arr">→</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- PARTNER CTA -->
+<section id="partner">
+  <img class="p-bg" src="ZAMNA-15052026-KMG-44.jpg" alt="" aria-hidden="true" loading="lazy"/>
+  <div class="p-ov"></div>
+  <div class="p-inner">
+    <span class="s-tag sr" style="justify-content:center;display:flex">Ready to Launch</span>
+    <h2 class="p-ttl sr2">Bring Your<br/>Festival to Malta</h2>
+    <p class="p-sub sr3">We help international brands launch, grow and operate successful festivals in Malta through a trusted local partnership model.</p>
+    <div class="sr"><a href="#contact" class="btn-p"><span>Get in Touch</span><span class="b-arr">→</span></a></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="sec">
+  <div class="container">
+    <span class="s-tag sr">Work With Us</span>
+    <h2 class="s-ttl sr2">Let's Collaborate</h2>
+    <div class="contact-grid">
+      <div class="sr2">
+        <div class="c-blk"><span class="c-lbl">Festival &amp; Operations</span><a class="c-mail" href="mailto:darren@bfast2night.com">darren@bfast2night.com</a></div>
+        <div class="c-blk"><span class="c-lbl">Partnerships &amp; Business</span><a class="c-mail" href="mailto:neil@bfast2night.com">neil@bfast2night.com</a></div>
+        <div class="c-soc">
+          <a class="soc-btn" href="https://instagram.com/bfast2night" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            Instagram
+          </a>
+          <a class="soc-btn" href="#">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+      <form class="c-form sr3" id="contact-form" onsubmit="submitForm(event)">
+        <input type="hidden" name="_subject" value="New enquiry from B'Fast2Night website"/>
+        <input type="hidden" name="_cc" value="neil@bfast2night.com"/>
+        <input type="hidden" name="_template" value="table"/>
+        <input type="text" name="_honey" style="display:none"/>
+        <div class="f-row">
+          <input type="text" name="name" placeholder="Your Name" required/>
+          <input type="email" name="email" placeholder="Your Email" required/>
+        </div>
+        <input type="text" name="company" placeholder="Company / Festival Name"/>
+        <textarea name="message" placeholder="Tell us about your project..." required></textarea>
+        <button type="submit" class="f-sub"><span>Send Message</span></button>
+      </form>
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer id="contact">
-  <div class="mono red">02 — Get in touch</div>
-  <div class="f-big">Book your<br><a href="#events" id="fBook">table tonight</a></div>
-  <div class="f-grid">
-    <div class="col">
-      <span class="mono">Follow</span>
-      <a href="https://www.instagram.com/bfast2night" target="_blank" rel="noopener">Instagram</a>
-      <a href="https://www.facebook.com/Bfast2night" target="_blank" rel="noopener">Facebook</a>
-    </div>
-    <div class="col">
-      <span class="mono">Enquiries</span>
-      <a href="mailto:info@bfast2night.com">info@bfast2night.com</a>
-      <span style="color:var(--dim);font-weight:300">VIP & corporate bookings</span>
-    </div>
-  </div>
-  <div class="f-base">
-    <span class="mono">© 2026 B'Fast2Night Entertainment</span>
-    <span class="mono">Malta · 17+ events · Party responsibly</span>
-  </div>
+<footer>
+  <img class="f-logo" id="footer-logo" src="2 WHITE - No Backround.png" alt="B'Fast2Night Entertainment"/>
+  <span class="f-copy">&copy; 2026 B'Fast2Night Entertainment. All rights reserved.</span>
 </footer>
 
-<!-- EVENT SHEET -->
-<div class="overlay" id="overlay"></div>
-<aside class="sheet" id="sheet" aria-hidden="true">
-  <div class="sh-top">
-    <span class="mono red" id="shTag">Event</span>
-    <button class="sh-close" id="shClose" aria-label="Close">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12M14 2L2 14"/></svg>
-    </button>
-  </div>
-  <div class="sh-scroll">
-    <span class="mono" id="shDate"></span>
-    <h3 id="shName"></h3>
-    <p class="sh-desc" id="shDesc"></p>
-    <div class="sh-meta">
-      <div><span class="mono">Venue</span><span id="shVenue"></span></div>
-      <div><span class="mono">Doors</span><span id="shTime"></span></div>
-      <div><span class="mono">Age</span><span id="shAge"></span></div>
-      <div><span class="mono">Tickets from</span><span id="shPrice"></span></div>
-    </div>
-    <a class="sh-tix" id="shTix" href="#" target="_blank" rel="noopener">General tickets ↗</a>
-    <div class="sh-divider"><span class="mono red">VIP Tables</span></div>
-    <div id="tierList"></div>
-    <p class="t-note">Your table deposit is fully redeemable in bottle &amp; drink credit on the night. Deposits are non-refundable. Entry tickets are separate unless stated.</p>
-    <form class="bform" id="bform" novalidate>
-      <label class="full"><span class="mono">Full name</span><input type="text" id="fName" autocomplete="name" required></label>
-      <label><span class="mono">Email</span><input type="email" id="fEmail" autocomplete="email" required></label>
-      <label><span class="mono">Phone / WhatsApp</span><input type="tel" id="fPhone" autocomplete="tel" required></label>
-      <label><span class="mono">Guests</span><select id="fGuests"></select></label>
-      <label><span class="mono">Table</span><select id="fTier"></select></label>
-      <label class="full"><span class="mono">Notes (optional)</span><textarea id="fNotes" placeholder="Birthday, bottle preferences, arrival time…"></textarea></label>
-      <span class="err" id="bErr">Please fill in your name, email and phone so we can confirm your table.</span>
-      <button type="submit" class="submit">Request this table</button>
-    </form>
-    <div class="bsuccess" id="bSuccess">
-      <h4>Table requested</h4>
-      <p id="bSumm"></p>
-      <p style="margin-top:10px">Our VIP team will confirm availability and send a secure payment link within 24 hours.</p>
-      <span class="ref" id="bRef"></span>
-    </div>
-  </div>
-</aside>
-
-<!-- GSAP + Lenis (global scripts — unchanged) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.18/lenis.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-/* =========================================================
-   B'FAST 2 NIGHT — site engine (booking / events / UI)
-   WebGL + postprocessing live in the module script below.
-========================================================= */
-
-const TIERS_DEFAULT = [
-  {id:'silver',  name:'Silver Table',   price:'€350 min. spend', desc:'Reserved table for up to 6 guests. Dedicated waitress service. Full deposit redeemable in bottles & drinks.'},
-  {id:'gold',    name:'Gold Table',     price:'€600 min. spend', desc:'Prime-position table for up to 8 guests. Priority entry for your group, dedicated host & waitress service.'},
-  {id:'platinum',name:'Platinum Stage', price:'€1,000 min. spend', desc:'Front-of-stage table for up to 12. Skip-the-line entry, personal host, sparklers on arrival. The full show.'},
-];
-
-const EVENTS = [
-  {
-    id:'offweek', hue:'offweek', tag:'Festival takeover',
-    name:'OFFWEEK Festival Malta',
-    day:'11', month:'JUL', year:'2026', dateLong:'Saturday 11 July 2026',
-    venue:'Gianpula Main Room', time:'21:00 – 04:00', age:'17+', price:'See tickets',
-    desc:'From Barcelona to Hi Ibiza and now to Malta — OFFWEEK lands at Gianpula Main Room for one massive takeover. Expect top-level production, an international crowd and the energy OFFWEEK is known for across Europe.',
-    tickets:'https://www.showshappening.com/bfast2night/offweek-festival-malta',
-    tiers:TIERS_DEFAULT
-  },
-  {
-    id:'zamna', hue:'zamna', tag:'Sunset beach show',
-    name:'Zamna On The Beach',
-    day:'09', month:'AUG', year:'2026', dateLong:'Sunday 9 August 2026',
-    venue:'Palm Beach, Malta', time:'16:00 – 00:00', age:'17+', price:'€10',
-    desc:'Zamna returns to Malta — this time on the shores of the Mediterranean. From afternoon through sunset until midnight, world-class music and the true Zamna vibe by the beach.',
-    tickets:'https://www.showshappening.com/bfast2night/zamna-on-the-beach-malta',
-    tiers:[
-      {id:'cabana',  name:'Beach Cabana',  price:'€400 min. spend', desc:'Private cabana for up to 6 with waitress service through sunset. Deposit fully redeemable in drinks.'},
-      {id:'front',   name:'Stage Front',   price:'€700 min. spend', desc:'Front-row beach table for up to 8. Priority entry and dedicated host for the whole show.'},
-      {id:'ultra',   name:'Ultra Cabana',  price:'€1,200 min. spend', desc:'The best spot on the sand for up to 12. Personal host, premium bottle menu, golden-hour views.'},
-    ]
-  },
-  {
-    id:'fridays', hue:'fridays', tag:'Weekly residency',
-    name:'French Fridays — Marrakech',
-    day:'FRI', month:'WKLY', year:'2026', dateLong:'Every Friday',
-    venue:'Marrakech, Gianpula Village', time:'22:00 – 04:00', age:'17+', price:'See tickets',
-    desc:'Every Friday under the stars at Malta’s iconic open-air venue. A night dedicated to the hottest commercial French music — chart-toppers to club anthems.',
-    tickets:'https://www.showshappening.com/bfast2night/MARRAKECH-PARTY--COMMERCIAL-FRENCH-MUSIC--EVERY-FRIDAY',
-    tiers:TIERS_DEFAULT
-  },
-];
-
-/* ---------- render 3D event cards ---------- */
-const stage=document.getElementById('eStage');
-const cards=[];
-EVENTS.forEach((ev,i)=>{
-  const el=document.createElement('article');
-  el.className='e3d';el.dataset.hue=ev.hue;el.tabIndex=0;
-  el.innerHTML=`
-    <div class="panel">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <div class="p-top"><span class="p-tag">${ev.tag}</span><span class="p-idx">EVT_${String(i+1).padStart(2,'0')}</span></div>
-      <div class="p-date"><b>${ev.day} ${ev.month} ${ev.year}</b> — ${ev.time}</div>
-      <h3>${ev.name}</h3>
-      <div class="p-venue mono">${ev.venue}</div>
-      <div class="p-bottom">
-        <button class="p-open">Details + VIP tables<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 13L13 3M5 3h8v8"/></svg></button>
-        <span class="p-hint">Deposit redeemable in drinks</span>
-      </div>
-    </div>`;
-  el.addEventListener('click',()=>openSheet(i));
-  el.addEventListener('keydown',e=>{if(e.key==='Enter')openSheet(i)});
-  stage.appendChild(el);cards.push(el);
-});
-document.getElementById('pTotal').textContent=String(EVENTS.length).padStart(2,'0');
-
-const HUES={offweek:'#ff2b38',zamna:'#ff7a2f',fridays:'#3dff8c'};
-let activeIdx=-1,tiltX=0,tiltY=0;
-
-function setProg(idx,p){
-  document.getElementById('pNow').textContent=String(idx+1).padStart(2,'0');
-  document.getElementById('pName').textContent=EVENTS[idx].name;
-  document.getElementById('pBar').style.width=(p*100)+'%';
-}
-let renderCards=function(cur){
-  const N=cards.length;
-  const seg=Math.max(0,Math.min(N-1,Math.round(cur)));
-  if(seg!==activeIdx){
-    activeIdx=seg;setProg(seg,cur/(N-1));
-    if(window.__aura)window.__aura.flare(HUES[EVENTS[seg].hue]);
-  }else{setProg(seg,Math.max(0,Math.min(1,cur/(N-1))))}
-  cards.forEach((el,i)=>{
-    const t=cur-i;
-    let z,op,sc,rx,bl,y;
-    if(t<0){
-      const u=Math.max(0,1+t/.75);
-      z=-1500+1500*ease(u);op=u*u;sc=.82+.18*u;rx=14-14*ease(u);bl=8-8*u;y=40-40*u;
-    }else{
-      const u=Math.min(1,t/.75);
-      z=900*ease(u);op=1-u;sc=1+.25*u;rx=-10*u;bl=12*u;y=-30*u;
+/* ── THREE.JS PARTICLES ─────────────────────────── */
+(function(){
+  const cv=document.getElementById('three-canvas');
+  const r=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:false});
+  r.setPixelRatio(Math.min(devicePixelRatio,1));
+  r.setSize(innerWidth,innerHeight);
+  const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,1000);
+  cam.position.z=4;
+  const N=850,pos=new Float32Array(N*3),vel=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*11;pos[i*3+1]=(Math.random()-.5)*11;pos[i*3+2]=(Math.random()-.5)*6;
+    vel[i*3]=(Math.random()-.5)*.0006;vel[i*3+1]=(Math.random()-.5)*.0006;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  sc.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:.015,transparent:true,opacity:.45,sizeAttenuation:true})));
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.5;my=(e.clientY/innerHeight-.5)*.35;},{passive:true});
+  window.addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();r.setSize(innerWidth,innerHeight);});
+  // pause rendering whenever the hero is scrolled out of view (saves GPU)
+  let visible=true;
+  new IntersectionObserver(es=>{visible=es[0].isIntersecting;},{threshold:0}).observe(document.getElementById('hero'));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)visible=false;});
+  (function tick(){
+    requestAnimationFrame(tick);
+    if(!visible)return;
+    for(let i=0;i<N;i++){
+      pos[i*3]+=vel[i*3];pos[i*3+1]+=vel[i*3+1];
+      if(pos[i*3]>5.5)pos[i*3]=-5.5;if(pos[i*3]<-5.5)pos[i*3]=5.5;
+      if(pos[i*3+1]>5.5)pos[i*3+1]=-5.5;if(pos[i*3+1]<-5.5)pos[i*3+1]=5.5;
     }
-    if(op<=0.001){el.style.opacity=0;el.style.pointerEvents='none';return}
-    el.style.pointerEvents=(t>=-0.2&&t<.5)?'auto':'none';
-    el.style.opacity=op;
-    const isGlow=t>=-0.15&&t<.35;
-    const hue=el.style.getPropertyValue('--hue')||'rgba(255,43,56,0)';
-    el.style.filter=bl>0.3?`blur(${bl.toFixed(1)}px) drop-shadow(0 0 ${isGlow?60:0}px ${isGlow?'var(--hue,#ff2b38)':'transparent'})`:`drop-shadow(0 0 ${isGlow?60:0}px ${isGlow?'var(--hue,#ff2b38)':'transparent'})`;
-    el.querySelector('.panel').style.boxShadow=isGlow?`0 0 80px -10px var(--hue,#ff2b38), 0 0 30px -5px var(--hue,#ff2b38) inset`:'';
-    const isActive=t>=-0.15&&t<.35;
-    const tx=isActive?tiltY:0, ty=isActive?tiltX:0;
-    el.style.transform=`translate(-50%,-50%) translate3d(0,${y}px,${z}px) rotateX(${(rx+tx).toFixed(2)}deg) rotateY(${ty.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
-    el.style.zIndex=Math.round(100-Math.abs(t)*50);
-  });
-};
-function ease(u){return 1-Math.pow(1-u,3)}
-
-const NEV=EVENTS.length;
-let cur=0,target=0,dragging=false,dragX0=0,dragCur0=0,moved=0,animOn=false;
-function animate(){
-  if(animOn)return;animOn=true;
-  (function loop(){
-    cur+=(target-cur)*.12;
-    if(Math.abs(target-cur)<.0008&&!dragging){cur=target;renderCards(cur);animOn=false;return}
-    renderCards(cur);requestAnimationFrame(loop);
+    geo.attributes.position.needsUpdate=true;
+    cam.position.x+=(mx-cam.position.x)*.018;
+    cam.position.y+=(-my-cam.position.y)*.018;
+    cam.lookAt(sc.position);
+    r.render(sc,cam);
   })();
-}
-function goTo(i){target=Math.max(0,Math.min(NEV-1,i));animate()}
-stage.addEventListener('pointerdown',e=>{
-  dragging=true;moved=0;dragX0=e.clientX;dragCur0=cur;
-});
-window.addEventListener('pointermove',e=>{
-  if(dragging){
-    const dx=e.clientX-dragX0;moved=Math.max(moved,Math.abs(dx));
-    target=cur=Math.max(-.3,Math.min(NEV-1+.3,dragCur0-dx/(stage.clientWidth*.55)));
-    renderCards(cur);
+})();
+
+
+/* ── LOADER ──────────────────────────────────── */
+(function(){
+  const loader=document.getElementById('loader');
+  const llogo=document.getElementById('ld-logo');
+  const nav=document.getElementById('nav-logo');
+  if(!loader||!llogo||!nav)return;
+  let flown=false;
+  function flyHome(){
+    if(flown)return;flown=true;
+    const a=llogo.getBoundingClientRect();
+    const b=nav.getBoundingClientRect();
+    const scale=b.width/a.width;
+    const dx=(b.left+b.width/2)-(a.left+a.width/2);
+    const dy=(b.top+b.height/2)-(a.top+a.height/2);
+    // 1. freeze the logo at its current centre position (kill the entrance animation)
+    llogo.style.animation='none';
+    llogo.style.opacity='1';
+    llogo.style.transform='translate(0px,0px) scale(1)';
+    void llogo.offsetWidth;                       // force reflow → lock start state
+    // 2. arm the transition, reflow again so the next change animates
+    llogo.style.transition='transform 1.2s cubic-bezier(.62,0,.2,1),filter 1s ease';
+    void llogo.offsetWidth;
+    // 3. fly to the navbar slot
+    nav.style.opacity='0';
+    llogo.style.transform=`translate(${dx}px,${dy}px) scale(${scale})`;
+    llogo.style.filter='drop-shadow(0 2px 24px rgba(255,255,255,.15))';
+    loader.classList.add('bg-out');               // dissolve the black background as it travels
+    setTimeout(()=>{nav.style.opacity='';loader.classList.add('gone');},1300);
   }
-});
-stage.addEventListener('pointermove',e=>{
-  if(dragging)return;
-  const r=stage.getBoundingClientRect();
-  tiltX=((e.clientX-r.left)/r.width-.5)*7;
-  tiltY=-((e.clientY-r.top)/r.height-.5)*6;
-  renderCards(cur);
-});
-function endDrag(e){
-  if(!dragging)return;dragging=false;
-  const dx=e.clientX-dragX0, flick=Math.abs(dx)>40&&moved>12;
-  let next=Math.round(cur);
-  if(flick)next=dx<0?Math.ceil(dragCur0+.15):Math.floor(dragCur0-.15);
-  goTo(next);
-}
-window.addEventListener('pointerup',endDrag);
-window.addEventListener('pointercancel',endDrag);
-stage.addEventListener('pointerleave',()=>{if(!dragging){tiltX=0;tiltY=0;renderCards(cur)}});
-addEventListener('keydown',e=>{
-  if(sheet.classList.contains('open'))return;
-  if(e.key==='ArrowRight')goTo(Math.round(target)+1);
-  if(e.key==='ArrowLeft')goTo(Math.round(target)-1);
-});
-document.getElementById('eNext').addEventListener('click',()=>goTo(Math.round(target)+1));
-document.getElementById('ePrev').addEventListener('click',()=>goTo(Math.round(target)-1));
-stage.addEventListener('click',e=>{if(moved>8){e.stopPropagation();e.preventDefault()}},true);
+  // wait for the 3D entrance to finish, then fly the logo into the navbar
+  window.addEventListener('load',()=>setTimeout(flyHome,1700));
+  setTimeout(flyHome,2600);  // fallback if load already fired / is slow
+})();
 
-/* ---------- sheet ---------- */
-const sheet=document.getElementById('sheet'),overlay=document.getElementById('overlay');
-let activeEv=null,activeTier=0;
-function openSheet(i){
-  activeEv=EVENTS[i];activeTier=0;
-  document.getElementById('shTag').textContent=activeEv.tag;
-  document.getElementById('shDate').textContent=activeEv.dateLong;
-  document.getElementById('shName').textContent=activeEv.name;
-  document.getElementById('shDesc').textContent=activeEv.desc;
-  document.getElementById('shVenue').textContent=activeEv.venue;
-  document.getElementById('shTime').textContent=activeEv.time;
-  document.getElementById('shAge').textContent=activeEv.age;
-  document.getElementById('shPrice').textContent=activeEv.price;
-  document.getElementById('shTix').href=activeEv.tickets;
-  renderTiers();
-  const g=document.getElementById('fGuests');g.innerHTML='';
-  for(let n=2;n<=12;n++){g.innerHTML+=`<option value="${n}">${n} guests</option>`}
-  document.getElementById('bform').style.display='grid';
-  document.getElementById('bSuccess').style.display='none';
-  document.getElementById('bErr').style.display='none';
-  sheet.classList.add('open');overlay.classList.add('open');
-  sheet.setAttribute('aria-hidden','false');
-  if(window.lenis)window.lenis.stop();
-  sheet.querySelector('.sh-scroll').scrollTop=0;
-}
-function closeSheet(){
-  sheet.classList.remove('open');overlay.classList.remove('open');
-  sheet.setAttribute('aria-hidden','true');
-  if(window.lenis)window.lenis.start();
-}
-document.getElementById('shClose').addEventListener('click',closeSheet);
-overlay.addEventListener('click',closeSheet);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+/* ── CURSOR — single dot, position only (no rAF loop) ── */
+const $c=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{$c.style.left=e.clientX+'px';$c.style.top=e.clientY+'px';},{passive:true});
 
-function renderTiers(){
-  const wrap=document.getElementById('tierList');wrap.innerHTML='';
-  const sel=document.getElementById('fTier');sel.innerHTML='';
-  activeEv.tiers.forEach((t,j)=>{
-    const d=document.createElement('div');
-    d.className='tier'+(j===activeTier?' sel':'');
-    d.innerHTML=`<div class="t-name">${t.name}</div><div class="t-price">${t.price}</div><div class="t-desc">${t.desc}</div>`;
-    d.addEventListener('click',()=>{activeTier=j;renderTiers()});
-    wrap.appendChild(d);
-    sel.innerHTML+=`<option value="${j}" ${j===activeTier?'selected':''}>${t.name} — ${t.price}</option>`;
+/* ── MAGNETIC BUTTONS ───────────────────────── */
+document.querySelectorAll('.btn-p,.btn-g').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const rect=btn.getBoundingClientRect();
+    const x=(e.clientX-rect.left-rect.width/2)*.22;
+    const y=(e.clientY-rect.top-rect.height/2)*.22;
+    btn.style.transform=`translate(${x}px,${y}px) scale(1.02)`;
   });
-  sel.onchange=e=>{activeTier=+e.target.value;renderTiers()};
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+});
+
+/* ── NAVBAR ──────────────────────────────────── */
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>60),{passive:true});
+document.getElementById('hmbgr').addEventListener('click',()=>document.getElementById('nav-links').classList.toggle('open'));
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nav-links').classList.remove('open')));
+
+/* ── SCROLL REVEAL ───────────────────────────── */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+},{threshold:.08,rootMargin:'0px 0px -24px 0px'});
+document.querySelectorAll('.sr,.sr2,.sr3').forEach(el=>io.observe(el));
+
+/* ── STAT COUNTERS ───────────────────────────── */
+const cio=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const el=e.target,t=+el.dataset.t;
+  const sfx='+';
+  const dur=2000,st=performance.now();
+  (function tick(n){
+    const p=Math.min((n-st)/dur,1);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=Math.floor(ease*t)+(p===1?sfx:'');
+    if(p<1)requestAnimationFrame(tick);
+  })(st);
+  cio.unobserve(el);
+});},{threshold:.5});
+document.querySelectorAll('.stat-n[data-t]').forEach(el=>cio.observe(el));
+
+/* ── HERO VIDEO - reveal once it can actually play ── */
+const vid=document.getElementById('hero-video');
+if(vid){
+  const reveal=()=>{
+    const photo=document.querySelector('.hero-photo');
+    if(photo)photo.style.opacity='0';
+    vid.classList.add('playing');
+  };
+  vid.addEventListener('playing',reveal);
+  vid.addEventListener('canplay',()=>vid.play().then(reveal).catch(()=>{}));
+  // nudge autoplay (some browsers need an explicit play call)
+  vid.play().catch(()=>{});
 }
 
-function submitBooking(data){
-  console.log('BOOKING REQUEST',data);
-  return Promise.resolve({ref:'BF-'+Date.now().toString(36).toUpperCase()});
-}
-document.getElementById('bform').addEventListener('submit',e=>{
+/* ── SERVICE CARD 3D TILT ────────────────────── */
+document.querySelectorAll('.card-item').forEach(card=>{
+  const glow=card.querySelector('.card-glow');
+  let raf,rect;
+  card.addEventListener('mouseenter',()=>{
+    rect=card.getBoundingClientRect();                 // measure once per hover
+    card.style.transition='transform .12s ease-out,box-shadow .4s,background .4s';
+    card.style.background='linear-gradient(160deg,#262626 0%,#141414 100%)';
+    card.style.boxShadow='0 36px 60px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.16)';
+    card.style.zIndex='10';
+  });
+  card.addEventListener('mousemove',e=>{
+    if(!rect)return;
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      const x=(e.clientX-rect.left)/rect.width-.5;
+      const y=(e.clientY-rect.top)/rect.height-.5;
+      card.style.transform=`rotateY(${x*16}deg) rotateX(${-y*13}deg) translateZ(50px) scale(1.05)`;
+      if(glow){glow.style.left=(e.clientX-rect.left)+'px';glow.style.top=(e.clientY-rect.top)+'px';}
+    });
+  });
+  card.addEventListener('mouseleave',()=>{
+    cancelAnimationFrame(raf);rect=null;
+    card.style.transition='transform .8s cubic-bezier(.22,1.2,.36,1),box-shadow .6s,background .5s';
+    card.style.transform='rotateY(0) rotateX(0) translateZ(0) scale(1)';
+    card.style.background='';
+    card.style.boxShadow='';
+    card.style.zIndex='';
+  });
+});
+
+/* ── ABOUT IMAGE 3D TILT ─────────────────────── */
+(function(){
+  const w=document.getElementById('about-img-tilt');
+  if(!w)return;
+  let raf;
+  w.style.perspective='1100px';
+  w.addEventListener('mousemove',e=>{
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      const r=w.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      w.style.transition='transform .12s ease-out';
+      w.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(20px)`;
+    });
+  });
+  w.addEventListener('mouseleave',()=>{
+    cancelAnimationFrame(raf);
+    w.style.transition='transform .8s cubic-bezier(.22,1.2,.36,1)';
+    w.style.transform='rotateY(0) rotateX(0) translateZ(0)';
+  });
+})();
+
+/* ── EVENTS - 3D tilt + modal ────────────────── */
+(function(){
+  const cards=document.querySelectorAll('.ev-card');
+  const modal=document.getElementById('ev-modal');
+  if(!cards.length||!modal)return;
+  // 3D tilt
+  cards.forEach(card=>{
+    let raf,r;
+    card.addEventListener('mouseenter',()=>{
+      r=card.getBoundingClientRect();                  // measure once per hover
+      card.style.transition='transform .12s ease-out,box-shadow .4s,border-color .4s';
+      card.style.boxShadow='0 32px 60px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.16)';
+      card.style.borderColor='rgba(255,255,255,.3)';
+    });
+    card.addEventListener('mousemove',e=>{
+      if(!r)return;
+      cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>{
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        card.style.transform=`rotateY(${x*8}deg) rotateX(${-y*7}deg) translateZ(28px) scale(1.02)`;
+      });
+    });
+    card.addEventListener('mouseleave',()=>{
+      cancelAnimationFrame(raf);r=null;
+      card.style.transition='transform .8s cubic-bezier(.22,1.2,.36,1),box-shadow .6s,border-color .5s';
+      card.style.transform='rotateY(0) rotateX(0) translateZ(0) scale(1)';
+      card.style.boxShadow='';card.style.borderColor='';
+    });
+    // open modal
+    card.addEventListener('click',()=>openEvent(card));
+  });
+
+  function openEvent(card){
+    const d=card.dataset;
+    document.getElementById('evm-img').src=d.img;
+    document.getElementById('evm-img').onerror=function(){this.src=card.querySelector('.ev-bg').src;};
+    document.getElementById('evm-tag').textContent=d.tag;
+    document.getElementById('evm-name').textContent=d.name;
+    document.getElementById('evm-date').textContent=d.date;
+    document.getElementById('evm-time').textContent=d.time;
+    document.getElementById('evm-venue').textContent=d.venue;
+    document.getElementById('evm-desc').textContent=d.desc;
+    const lw=document.getElementById('evm-lineup-wrap'),lu=document.getElementById('evm-lineup');
+    if(d.lineup&&d.lineup.trim()){
+      lu.innerHTML='';
+      d.lineup.split('|').forEach(a=>{const s=document.createElement('span');s.textContent=a;lu.appendChild(s);});
+      lw.style.display='block';
+    }else{lw.style.display='none';}
+    const buy=document.getElementById('evm-buy');
+    buy.href=d.link;
+    buy.firstChild.textContent=(d.status==='Info'?'View Event ':'Buy Tickets ');
+    modal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeEvent(){modal.classList.remove('open');document.body.style.overflow='';}
+  document.getElementById('evm-close').addEventListener('click',closeEvent);
+  document.getElementById('evm-backdrop').addEventListener('click',closeEvent);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEvent();});
+})();
+
+/* ── CONTACT FORM ────────────────────────────── */
+function submitForm(e){
   e.preventDefault();
-  const name=fName.value.trim(),email=fEmail.value.trim(),phone=fPhone.value.trim();
-  if(!name||!email.includes('@')||!phone){bErr.style.display='block';return}
-  bErr.style.display='none';
-  const t=activeEv.tiers[activeTier];
-  submitBooking({event:activeEv.name,date:activeEv.dateLong,tier:t.name,price:t.price,
-    name,email,phone,guests:fGuests.value,notes:fNotes.value.trim()})
-    .then(r=>{
-      bSumm.textContent=`${t.name} · ${activeEv.name} · ${activeEv.dateLong} · ${fGuests.value} guests`;
-      bRef.textContent='Reference '+r.ref;
-      document.getElementById('bform').style.display='none';
-      bSuccess.style.display='block';
-      sheet.querySelector('.sh-scroll').scrollTo({top:sheet.querySelector('.sh-scroll').scrollHeight,behavior:'smooth'});
-    });
-});
-
-/* ---------- smooth scroll ---------- */
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let lenis=null;
-if(!reduced&&window.Lenis){
-  lenis=new Lenis({lerp:.09,wheelMultiplier:1});
-  window.lenis=lenis;
-  function raf(t){lenis.raf(t);requestAnimationFrame(raf)}
-  requestAnimationFrame(raf);
-}
-if(reduced){
-  document.querySelector('.events').classList.add('static');
-  renderCards=()=>{};
-}else{
-  renderCards(0);setProg(0,0);
-  new IntersectionObserver(es=>{
-    es.forEach(en=>{if(window.__aura)window.__aura.show(en.isIntersecting?1:0)});
-  },{threshold:.25}).observe(document.querySelector('.events'));
-}
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    const tgt=document.querySelector(a.getAttribute('href'));
-    if(!tgt)return;e.preventDefault();
-    lenis?lenis.scrollTo(tgt,{offset:0}):tgt.scrollIntoView({behavior:'smooth'});
+  const form=e.target;
+  const btn=form.querySelector('.f-sub');
+  const label=btn.querySelector('span');
+  label.textContent='Sending…';
+  btn.disabled=true;
+  // FormSubmit delivers to Darren, _cc copies Neil - no backend needed
+  fetch('https://formsubmit.co/ajax/darren@bfast2night.com',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({
+      name:form.name.value,
+      email:form.email.value,
+      company:form.company.value,
+      message:form.message.value,
+      _cc:'neil@bfast2night.com',
+      _subject:"New enquiry from B'Fast2Night website"
+    })
+  }).then(r=>r.json()).then(()=>{
+    label.textContent='Sent ✓';
+    btn.style.cssText='background:var(--white);color:var(--black)';
+    setTimeout(()=>{form.reset();label.textContent='Send Message';btn.style.cssText='';btn.disabled=false;},2600);
+  }).catch(()=>{
+    label.textContent='Error, try again';
+    btn.disabled=false;
+    setTimeout(()=>{label.textContent='Send Message';},2600);
   });
-});
-
-/* ---------- loader + intro ---------- */
-(function(){
-  const fillWrap=document.getElementById('lFillWrap'),
-        count=document.getElementById('lCount'),
-        barFill=document.getElementById('lBarFill'),
-        flash=document.getElementById('lFlash'),
-        loaderEl=document.getElementById('loader');
-
-  function heroIn(){
-    if(window.gsap&&!reduced){
-      gsap.to('.hero h1 .row span',{y:0,duration:1.2,stagger:.14,ease:'power4.out'});
-      gsap.to(['.h-kicker','.h-sub'],{opacity:1,duration:1.1,delay:.5,stagger:.18,ease:'power2.out'});
-      gsap.to(['.h-scroll','.h-meta'],{opacity:1,duration:1,delay:.95,ease:'power2.out'});
-      gsap.from('.hero h1 .peace',{scale:0,rotate:-45,duration:1,ease:'back.out(2)',delay:.8});
-    }else{
-      document.querySelectorAll('.hero h1 .row span').forEach(el=>el.style.transform='none');
-      document.querySelectorAll('.h-kicker,.h-sub,.h-scroll,.h-meta').forEach(el=>el.style.opacity=1);
-    }
-  }
-
-  if(reduced||!window.gsap){loaderEl.classList.add('done');heroIn();return;}
-
-  const prox={p:0};
-  gsap.timeline()
-    /* tagline fades in first */
-    .to('.l-tagline',{opacity:1,y:0,duration:.7,ease:'power2.out'},0.15)
-    /* text fills left→right, bar grows, counter ticks */
-    .to(prox,{p:100,duration:2.6,ease:'power2.inOut',onUpdate(){
-      const v=Math.floor(prox.p);
-      count.textContent=String(v).padStart(3,'0');
-      barFill.style.width=prox.p+'%';
-      fillWrap.style.width=prox.p+'%';
-    }},0.2)
-    /* hold a beat */
-    .to({},{duration:.3})
-    /* flash cut */
-    .to(flash,{opacity:1,duration:.07,ease:'none'},'cut')
-    .to(flash,{opacity:0,duration:.28,ease:'power2.out'},'cut+=.07')
-    /* burst the WebGL particles */
-    .add(()=>{if(window.__webgl)window.__webgl.addBurst();},'cut')
-    /* loader wipes up */
-    .to(loaderEl,{yPercent:-100,duration:.95,ease:'expo.inOut',
-      onComplete(){loaderEl.classList.add('done')}},'cut+=.08')
-    /* hero animates in */
-    .add(heroIn,'cut+=.32');
-})();
-
-/* ---------- custom cursor ---------- */
-(function(){
-  const cur=document.getElementById('cur'),label=document.getElementById('curLabel');
-  if(!cur||matchMedia('(hover:none)').matches)return;
-  document.documentElement.style.cursor='none';
-  const xTo=gsap.quickTo(cur,'x',{duration:.55,ease:'power3.out'});
-  const yTo=gsap.quickTo(cur,'y',{duration:.55,ease:'power3.out'});
-  window.addEventListener('mousemove',e=>{xTo(e.clientX);yTo(e.clientY);});
-
-  function addCursor(selector,cls,text){
-    document.querySelectorAll(selector).forEach(el=>{
-      el.style.cursor='none';
-      el.addEventListener('mouseenter',()=>{cur.className=cls;label.textContent=text;});
-      el.addEventListener('mouseleave',()=>{cur.className='';});
-    });
-  }
-  addCursor('a, button, .e-arrow','hover','VIEW');
-  addCursor('.e3d','hover','OPEN');
-  addCursor('.tier','hover','SELECT');
-  addCursor('#eStage','drag','DRAG');
-  addCursor('.p-open','hover','BOOK');
-})();
-
-/* ---------- scroll animations ---------- */
-if(window.gsap&&window.ScrollTrigger&&!reduced){
-  gsap.registerPlugin(ScrollTrigger);
-  if(lenis)lenis.on('scroll',ScrollTrigger.update);
-  const stmt=document.getElementById('stmt');
-  stmt.innerHTML=stmt.innerHTML.split(/(<span class="hl">.*?<\/span>|\s+)/g)
-    .map(w=>w.trim()?(w.startsWith('<span')?`<span class="w">${w}</span>`:`<span class="w">${w}</span>`):'').join(' ');
-  gsap.to('#stmt .w',{opacity:1,stagger:.06,ease:'none',
-    scrollTrigger:{trigger:'.statement',start:'top 72%',end:'center 45%',scrub:.4}});
-  gsap.from('.e-pin',{opacity:0,y:60,duration:1,ease:'power3.out',
-    scrollTrigger:{trigger:'.events',start:'top 70%'}});
-  gsap.from('footer .f-big',{y:60,opacity:0,duration:1,ease:'power3.out',
-    scrollTrigger:{trigger:'footer',start:'top 80%'}});
 }
 </script>
-
-<!-- ============================================================
-     WEBGL + POSTPROCESSING — ES module
-     All tunable numbers are in CONFIG below.
-     Only this section changed from the prototype.
-============================================================ -->
-<script type="module">
-import * as THREE from 'three';
-import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
-/* =====================================================
-   CONFIG — all tunable numbers in one place
-   Art-direct here; never hunt through shader code.
-===================================================== */
-const CONFIG = {
-  bloom: {
-    threshold: 0.50,   // lower = more motes catch the glow
-    strength:  0.65,   // noticeable halo on bright streaks
-    radius:    0.75,
-  },
-  dof: {
-    strength:    1.6,  // strong edge blur so centre pops
-    focusRadius: 0.18, // tight sharp circle in the middle
-  },
-  ca: {
-    amount: 0.0028,    // visible colour fringe at edges
-  },
-  vignette: {
-    offset:   0.28,    // darkness starts close to centre
-    darkness: 0.82,    // deep corners
-  },
-  grain: {
-    amount: 0.068,     // visible film grain
-  },
-  particles: {
-    trailDesktop: 3200, trailMobile: 1200,
-    dustDesktop:   450, dustMobile:   180,
-    auraDesktop:  1500, auraMobile:   600,
-  },
-  trail: {
-    arcLength: 0.30,   // streak arc in radians
-  },
-  camera: { fov: 60, z: 7 },
-};
-
-/* =====================================================
-   HELPERS
-===================================================== */
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const mobile  = innerWidth < 768;
-
-/* =====================================================
-   RENDERER + SCENE
-===================================================== */
-const canvas   = document.getElementById('webgl');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setClearColor(0x060608, 1);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.4;
-
-const scene = new THREE.Scene();
-const cam   = new THREE.PerspectiveCamera(CONFIG.camera.fov, innerWidth / innerHeight, 0.1, 100);
-cam.position.set(0, 0, CONFIG.camera.z);
-
-/* =====================================================
-   EFFECT COMPOSER PIPELINE
-   Order: RenderPass → Bloom → Combo (DoF + CA + Vignette + Grain)
-===================================================== */
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, cam));
-
-// 1. Bloom — high threshold so only bright motes/streaks glow
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(innerWidth, innerHeight),
-  CONFIG.bloom.strength,
-  CONFIG.bloom.radius,
-  CONFIG.bloom.threshold
-);
-composer.addPass(bloomPass);
-
-// 2. Combined pass: depth-of-field + chromatic aberration + vignette + film grain
-const ComboShader = {
-  uniforms: {
-    tDiffuse:   { value: null },
-    uTime:      { value: 0 },
-    uGrain:     { value: CONFIG.grain.amount },
-    uCA:        { value: CONFIG.ca.amount },
-    uVigOffset: { value: CONFIG.vignette.offset },
-    uVigDark:   { value: CONFIG.vignette.darkness },
-    uDofStr:    { value: CONFIG.dof.strength },
-    uDofRadius: { value: CONFIG.dof.focusRadius },
-  },
-  vertexShader: `
-    varying vec2 vUv;
-    void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
-  `,
-  fragmentShader: `
-    uniform sampler2D tDiffuse;
-    uniform float uTime;
-    uniform float uGrain;
-    uniform float uCA;
-    uniform float uVigOffset;
-    uniform float uVigDark;
-    uniform float uDofStr;
-    uniform float uDofRadius;
-    varying vec2 vUv;
-
-    float rand(vec2 n){
-      return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453);
-    }
-
-    /* 9-tap box blur with built-in CA, so both effects share the same samples */
-    vec3 sampleScene(vec2 uv, float blurSize, float caStr){
-      vec3 col = vec3(0.0);
-      float wt  = 0.0;
-      for(int x = -1; x <= 1; x++){
-        for(int y = -1; y <= 1; y++){
-          vec2 off = vec2(float(x), float(y)) * blurSize;
-          vec2 suv = uv + off;
-          /* chromatic aberration: R/B shift radially from centre */
-          vec2 dir = suv - 0.5;
-          float d   = length(dir);
-          float ca  = caStr * d;
-          float r   = texture2D(tDiffuse, suv + dir * ca).r;
-          float g   = texture2D(tDiffuse, suv).g;
-          float b   = texture2D(tDiffuse, suv - dir * ca).b;
-          col += vec3(r, g, b);
-          wt  += 1.0;
-        }
-      }
-      return col / wt;
-    }
-
-    void main(){
-      vec2  uv   = vUv;
-      float dist = length(uv - 0.5) * 2.0; /* 0 centre → ~1.41 corner */
-
-      /* DoF: blur ramps in beyond focusRadius */
-      float blur = max(0.0, dist - uDofRadius) * uDofStr * 0.006;
-
-      vec3 color = sampleScene(uv, blur, uCA);
-
-      /* Vignette — smooth, cinematic */
-      float vig = 1.0 - smoothstep(uVigOffset, 1.15, dist);
-      color *= mix(1.0 - uVigDark, 1.0, vig * vig);
-
-      /* Animated film grain */
-      float seed  = fract(uTime * 0.00127);
-      float grain = rand(uv + seed) - 0.5;
-      color += grain * uGrain;
-
-      gl_FragColor = vec4(max(color, 0.0), 1.0);
-    }
-  `,
-};
-
-const comboPass = new ShaderPass(ComboShader);
-composer.addPass(comboPass);
-
-/* =====================================================
-   PARTICLE SYSTEM (unchanged from prototype)
-===================================================== */
-const cv = document.createElement('canvas'); cv.width = cv.height = 64;
-const ctx = cv.getContext('2d');
-const grd = ctx.createRadialGradient(32,32,0,32,32,32);
-grd.addColorStop(0,'rgba(255,255,255,1)');
-grd.addColorStop(.4,'rgba(255,255,255,.45)');
-grd.addColorStop(1,'rgba(255,255,255,0)');
-ctx.fillStyle = grd; ctx.fillRect(0,0,64,64);
-const tex = new THREE.CanvasTexture(cv);
-
-const group = new THREE.Group();
-scene.add(group);
-group.rotation.x = -.56; group.rotation.z = .1;
-if(mobile) group.scale.setScalar(.62);
-
-/* --- streak trails --- */
-const TN = mobile ? CONFIG.particles.trailMobile : CONFIG.particles.trailDesktop;
-const tpos = new Float32Array(TN*2*3);
-const tcol = new Float32Array(TN*2*3);
-const ts   = new Float32Array(TN*4);
-const cWhite = new THREE.Color('#fff4e2');
-const cChamp = new THREE.Color('#ffc98a');
-const cRed   = new THREE.Color('#ff3a45');
-for(let i=0;i<TN;i++){
-  const r  = 2.0+Math.pow(Math.random(),1.6)*3.0;
-  const a0 = Math.random()*Math.PI*2;
-  const y0 = ((Math.random()+Math.random()+Math.random())/3-.5)*.9*(r/2.6);
-  const sp = (.5+Math.random()*.55)/Math.pow(r/2,1.1);
-  ts.set([r,a0,y0,sp],i*4);
-  const u  = Math.random();
-  const c  = u<.68 ? cWhite.clone().multiplyScalar(.7+Math.random()*.9)
-            :u<.92 ? cChamp.clone().multiplyScalar(.8+Math.random()*.8)
-                   : cRed.clone().multiplyScalar(.9+Math.random()*.6);
-  tcol.set([c.r,c.g,c.b],i*6);
-  tcol.set([c.r*.12,c.g*.12,c.b*.12],i*6+3);
-}
-const tgeo = new THREE.BufferGeometry();
-tgeo.setAttribute('position',new THREE.BufferAttribute(tpos,3));
-tgeo.setAttribute('color',   new THREE.BufferAttribute(tcol,3));
-const tmat = new THREE.LineBasicMaterial({
-  vertexColors:true, transparent:true, opacity:.7,
-  blending:THREE.AdditiveBlending, depthWrite:false
-});
-const trails = new THREE.LineSegments(tgeo,tmat);
-group.add(trails);
-
-/* --- deep dust --- */
-const DN   = mobile ? CONFIG.particles.dustMobile : CONFIG.particles.dustDesktop;
-const dpos = new Float32Array(DN*3);
-for(let i=0;i<DN;i++){
-  dpos.set([(Math.random()-.5)*16,(Math.random()-.5)*9,-3-Math.random()*6],i*3);
-}
-const dgeo = new THREE.BufferGeometry();
-dgeo.setAttribute('position',new THREE.BufferAttribute(dpos,3));
-const dmat = new THREE.PointsMaterial({
-  size:.04,map:tex,color:new THREE.Color('#fff0dd'),
-  transparent:true,opacity:.16,depthWrite:false,
-  blending:THREE.AdditiveBlending,sizeAttenuation:true
-});
-scene.add(new THREE.Points(dgeo,dmat));
-
-/* --- aura halo --- */
-const AN    = mobile ? CONFIG.particles.auraMobile : CONFIG.particles.auraDesktop;
-const aseed = new Float32Array(AN*4);
-const ageo  = new THREE.BufferGeometry();
-ageo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(AN*3),3));
-for(let i=0;i<AN;i++){
-  aseed.set([Math.pow(Math.random(),.5),Math.random()*Math.PI*2,(Math.random()-.5)*2,.2+Math.random()*.7],i*4);
-}
-const amat = new THREE.PointsMaterial({
-  size:.075,map:tex,color:new THREE.Color('#ff2b38'),
-  transparent:true,opacity:0,depthWrite:false,
-  blending:THREE.AdditiveBlending,sizeAttenuation:true
-});
-const aura = new THREE.Points(ageo,amat);
-aura.position.z = -.6; scene.add(aura);
-let aShow=0, aFlare=0;
-const aCol = new THREE.Color('#ff2b38');
-
-/* Expose aura interface (used by event card code) */
-window.__aura = {
-  flare(hex){ aCol.set(hex); aFlare = 1; },
-  show(v)   { aShow = v; }
-};
-
-/* Expose burst interface (used by loader) */
-let burst = 0;
-window.__webgl = { addBurst(){ burst = 1; } };
-console.log('[B2N] WebGL module loaded — EffectComposer pipeline active');
-
-/* =====================================================
-   RESIZE
-===================================================== */
-function onResize(){
-  const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h);
-  composer.setSize(w, h);
-  cam.aspect = w / h;
-  cam.updateProjectionMatrix();
-  bloomPass.resolution.set(w, h);
-}
-addEventListener('resize', onResize);
-onResize();
-
-/* =====================================================
-   POINTER + SCROLL
-===================================================== */
-let mx = 0, my = 0, scrollRatio = 0;
-addEventListener('pointermove', e => { mx = e.clientX/innerWidth-.5; my = e.clientY/innerHeight-.5; });
-addEventListener('scroll', () => {
-  scrollRatio = Math.min(1, (window.scrollY||0) / (innerHeight*1.6));
-}, { passive: true });
-
-/* =====================================================
-   RENDER LOOP
-===================================================== */
-const clock = new THREE.Clock();
-let frameId;
-(function tick(){
-  frameId = requestAnimationFrame(tick);
-  const t      = clock.getElapsedTime();
-  const spread = 1 + scrollRatio*1.5 + burst*.55;
-  const L      = CONFIG.trail.arcLength + burst*.45;
-
-  if(!reduced){
-    /* update trail geometry */
-    for(let i=0;i<TN;i++){
-      const r=ts[i*4]*spread, a0=ts[i*4+1], y0=ts[i*4+2], sp=ts[i*4+3];
-      const a  = a0 + t*sp;
-      const a2 = a - L/Math.max(.7,r);
-      const y  = (y0+Math.sin(t*.45+a0*3)*.05)*spread;
-      tpos[i*6]  =Math.cos(a)*r;  tpos[i*6+1]=y; tpos[i*6+2]=Math.sin(a)*r;
-      tpos[i*6+3]=Math.cos(a2)*r; tpos[i*6+4]=y; tpos[i*6+5]=Math.sin(a2)*r;
-    }
-    tgeo.attributes.position.needsUpdate = true;
-
-    /* group rotation */
-    group.rotation.y = t * .055;
-    group.rotation.x = -.56 + my*.12;
-    group.rotation.z =  .10 + mx*.06;
-
-    /* camera parallax */
-    cam.position.x += ((mx*.9) - cam.position.x)*.04;
-    cam.position.y += ((-my*.6) - cam.position.y)*.04;
-    cam.lookAt(0,0,0);
-
-    /* opacity fade on scroll */
-    tmat.opacity = Math.max(.08, .7 - scrollRatio*.65);
-    dmat.opacity = Math.max(.04, .16 - scrollRatio*.10);
-    burst *= .95;
-
-    /* aura */
-    const ap     = ageo.attributes.position.array;
-    const spreadA = 1 + aFlare*.9;
-    for(let i=0;i<AN;i++){
-      const rr=aseed[i*4], a0=aseed[i*4+1], yy=aseed[i*4+2], sp=aseed[i*4+3];
-      const a = a0 + t*sp*.6;
-      ap[i*3]   = Math.cos(a)*rr*3.4*spreadA;
-      ap[i*3+1] = yy*1.5*spreadA + Math.sin(t*.6+a0*4)*.1;
-      ap[i*3+2] = Math.sin(a)*rr*.7;
-    }
-    ageo.attributes.position.needsUpdate = true;
-    amat.color.lerp(aCol, .07);
-    const aOp = aShow*(.55+aFlare*.45);
-    amat.opacity += (aOp - amat.opacity)*.06;
-    aFlare *= .94;
-  }
-
-  /* update grain time uniform */
-  comboPass.uniforms.uTime.value = t;
-
-  /* render through composer (not renderer.render) */
-  composer.render();
-})();
-</script>
-
 </body>
 </html>
