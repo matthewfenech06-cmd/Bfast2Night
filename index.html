@@ -188,8 +188,8 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 .about-img-w:hover .about-img{transform:scale(1.03)}
 .about-img-w .a-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);transition:transform 1s var(--ease-out);z-index:2}
 .about-img-w:hover .a-shine{transform:translateX(120%)}
-.about-border{position:absolute;inset:0;border:1px solid rgba(255,255,255,.18);transform:translate(20px,20px);z-index:-1;transition:transform .5s var(--spring)}
-.about-img-w:hover .about-border{transform:translate(8px,8px)}
+/* clean fitted frame sitting exactly on the image edges */
+.about-border{position:absolute;inset:0;border:1px solid rgba(255,255,255,.28);z-index:3;pointer-events:none}
 .about-stat-row{display:flex;gap:40px;margin-top:40px;padding-top:40px;border-top:1px solid var(--border)}
 .about-stat .n{font-size:3.5rem;font-weight:900;line-height:1;letter-spacing:-.03em}
 .about-stat .l{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.3;margin-top:4px}
