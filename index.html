@@ -488,8 +488,15 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   .about-grid,.contact-grid,.why-grid{grid-template-columns:1fr}
   .about-grid{gap:44px}
   /* SERVICES: single column; cards reveal on scroll via .in-view (JS) */
-  .svc-grid{grid-template-columns:1fr}
-  .card-item{min-height:auto;padding:34px 26px}
+  .svc-grid{grid-template-columns:1fr;gap:18px}
+  .card-item{min-height:280px;padding:38px 28px}
+  /* slower, staggered reveal so it feels smooth (not all at once) */
+  .card-item{transition:box-shadow .9s ease,background .9s ease,transform .9s cubic-bezier(.22,1,.36,1)}
+  .card-item .c-num{transition:opacity .8s ease,transform .9s cubic-bezier(.22,1,.36,1),text-shadow .8s ease}
+  .card-item .c-accent{transition:width .9s var(--ease-out) .15s}
+  .card-item .c-name{transition:border-color .7s ease .1s,transform .9s cubic-bezier(.22,1,.36,1)}
+  .card-item .c-details{transition:max-height .9s var(--ease-out) .28s,opacity .7s ease .35s,margin-top .8s ease .28s}
+  .card-item .card-shine{transition:transform 1.3s var(--ease-out) .15s}
   /* EVENTS: show the tap hint + stack */
   .ev-grid{grid-template-columns:1fr}
   .ev-card{height:420px}
@@ -1110,9 +1117,11 @@ document.querySelectorAll('.stat-n[data-t]').forEach(el=>cio.observe(el));
 
 /* ── TOUCH: trigger service-card reveal on scroll (no hover on phones) ── */
 if(window.matchMedia('(hover: none), (max-width: 768px)').matches){
+  // root collapses to a thin band near the vertical centre, so only the
+  // card currently passing through the middle of the screen animates
   const svcIO=new IntersectionObserver(es=>{
     es.forEach(e=>e.target.classList.toggle('in-view',e.isIntersecting));
-  },{rootMargin:'-38% 0px -38% 0px',threshold:0});
+  },{rootMargin:'-45% 0px -45% 0px',threshold:0});
   document.querySelectorAll('.card-item').forEach(c=>svcIO.observe(c));
 }
 
