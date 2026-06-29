@@ -374,8 +374,13 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 /* ── CONTACT ─────────────────────────── */
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px;margin-top:72px}
 .c-lbl{font-size:.6rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.26;display:block;margin-bottom:8px}
-.c-name{font-size:1.4rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em;display:block;line-height:1}
-.c-role{font-size:.62rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;opacity:.4;display:block;margin:6px 0 10px}
+.c-name{font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em;display:block;line-height:1.05}
+.c-role{font-size:.56rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;opacity:.4;display:block;margin:7px 0 9px}
+.c-dirs{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:38px}
+.c-dir{border-left:1px solid var(--border);padding-left:18px}
+.c-mail2{font-size:.92rem;font-weight:400;letter-spacing:.02em;opacity:.6;cursor:url('peace-cursor.png') 14 3,auto;transition:opacity .2s;word-break:break-word}
+.c-mail2:hover{opacity:1}
+@media(max-width:560px){.c-dirs{grid-template-columns:1fr;gap:24px}}
 .c-mail{font-size:1.25rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.78;transition:opacity .2s,transform .35s var(--spring);cursor:url('peace-cursor.png') 14 3,auto;display:inline-block}
 .c-mail:hover{opacity:1;transform:translateX(4px)}
 .c-blk{margin-bottom:38px}
@@ -1063,8 +1068,18 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
     <h2 class="s-ttl sr2">Let's Collaborate</h2>
     <div class="contact-grid">
       <div class="sr2">
-        <div class="c-blk"><span class="c-name">Darren Sciberras</span><span class="c-role">Managing Director</span><a class="c-mail" href="mailto:darren@bfast2night.com">darren@bfast2night.com</a></div>
-        <div class="c-blk"><span class="c-name">Neil Ellul Mifsud</span><span class="c-role">Commercial Director</span><a class="c-mail" href="mailto:neil@bfast2night.com">neil@bfast2night.com</a></div>
+        <div class="c-dirs">
+          <div class="c-dir">
+            <span class="c-name">Darren Sciberras</span>
+            <span class="c-role">Co-Director · Managing Director</span>
+            <a class="c-mail2" href="mailto:darren@bfast2night.com">darren@bfast2night.com</a>
+          </div>
+          <div class="c-dir">
+            <span class="c-name">Neil Ellul Mifsud</span>
+            <span class="c-role">Co-Director · Commercial Director</span>
+            <a class="c-mail2" href="mailto:neil@bfast2night.com">neil@bfast2night.com</a>
+          </div>
+        </div>
         <div class="c-soc">
           <a class="soc-btn" href="https://instagram.com/bfast2night" target="_blank" rel="noopener">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
