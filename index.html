@@ -487,16 +487,25 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   a,button{cursor:pointer}
   .about-grid,.contact-grid,.why-grid{grid-template-columns:1fr}
   .about-grid{gap:44px}
-  /* SERVICES: single column; cards reveal on scroll via .in-view (JS) */
-  .svc-grid{grid-template-columns:1fr;gap:18px}
-  .card-item{min-height:280px;padding:38px 28px}
-  /* slower, staggered reveal so it feels smooth (not all at once) */
-  .card-item{transition:box-shadow .9s ease,background .9s ease,transform .9s cubic-bezier(.22,1,.36,1)}
-  .card-item .c-num{transition:opacity .8s ease,transform .9s cubic-bezier(.22,1,.36,1),text-shadow .8s ease}
-  .card-item .c-accent{transition:width .9s var(--ease-out) .15s}
-  .card-item .c-name{transition:border-color .7s ease .1s,transform .9s cubic-bezier(.22,1,.36,1)}
-  .card-item .c-details{transition:max-height .9s var(--ease-out) .28s,opacity .7s ease .35s,margin-top .8s ease .28s}
-  .card-item .card-shine{transition:transform 1.3s var(--ease-out) .15s}
+  /* SERVICES on mobile: flat, clean reveal — no 3D depth (it glitches on phones) */
+  .svc-grid{grid-template-columns:1fr;gap:16px;perspective:none}
+  .card-item{min-height:auto;padding:36px 28px;transform-style:flat;will-change:auto}
+  .card-item .card-shine{display:none}          /* drop the sheen sweep on mobile */
+  .card-item.shiny-border::after{display:none}  /* drop the spinning border on mobile */
+  .card-item .card-glow{display:none}
+  /* collapsed (resting) state — fades up as a whole */
+  .card-item{opacity:0;transform:translateY(26px);
+    transition:opacity .7s ease,transform .8s cubic-bezier(.22,1,.36,1)}
+  .card-item .c-num{transform:none}
+  .card-item .c-name{transform:none}
+  .card-item .c-details{transform:none;transition:max-height .7s var(--ease-out) .15s,opacity .55s ease .2s,margin-top .6s ease .15s}
+  .card-item .c-accent{transition:width .8s var(--ease-out) .25s}
+  /* revealed state */
+  .card-item.in-view{opacity:1;transform:translateY(0);background:linear-gradient(160deg,#1f1f1f 0%,#121212 100%);box-shadow:0 16px 38px rgba(0,0,0,.55)}
+  .card-item.in-view .c-num{opacity:1;transform:none;text-shadow:none}
+  .card-item.in-view .c-name{transform:none;border-color:rgba(255,255,255,.5)}
+  .card-item.in-view .c-accent{width:100%}
+  .card-item.in-view .c-details{max-height:260px;opacity:1;margin-top:14px}
   /* EVENTS: show the tap hint + stack */
   .ev-grid{grid-template-columns:1fr}
   .ev-card{height:420px}
@@ -1117,11 +1126,10 @@ document.querySelectorAll('.stat-n[data-t]').forEach(el=>cio.observe(el));
 
 /* ── TOUCH: trigger service-card reveal on scroll (no hover on phones) ── */
 if(window.matchMedia('(hover: none), (max-width: 768px)').matches){
-  // root collapses to a thin band near the vertical centre, so only the
-  // card currently passing through the middle of the screen animates
+  // reveal each card once as it scrolls up into view, then leave it shown
   const svcIO=new IntersectionObserver(es=>{
-    es.forEach(e=>e.target.classList.toggle('in-view',e.isIntersecting));
-  },{rootMargin:'-45% 0px -45% 0px',threshold:0});
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); svcIO.unobserve(e.target); } });
+  },{rootMargin:'0px 0px -22% 0px',threshold:.15});
   document.querySelectorAll('.card-item').forEach(c=>svcIO.observe(c));
 }
 
