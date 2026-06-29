@@ -1128,10 +1128,10 @@ document.querySelectorAll('.stat-n[data-t]').forEach(el=>cio.observe(el));
 
 /* ── TOUCH: trigger service-card reveal on scroll (no hover on phones) ── */
 if(window.matchMedia('(hover: none), (max-width: 768px)').matches){
-  // reveal each card once as it scrolls up into view, then leave it shown
+  // re-run the reveal every time a card enters view (resets when it leaves)
   const svcIO=new IntersectionObserver(es=>{
-    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); svcIO.unobserve(e.target); } });
-  },{rootMargin:'0px 0px -22% 0px',threshold:.15});
+    es.forEach(e=>e.target.classList.toggle('in-view',e.isIntersecting));
+  },{rootMargin:'0px 0px -18% 0px',threshold:.2});
   document.querySelectorAll('.card-item').forEach(c=>svcIO.observe(c));
 }
 
