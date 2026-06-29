@@ -487,25 +487,27 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   a,button{cursor:pointer}
   .about-grid,.contact-grid,.why-grid{grid-template-columns:1fr}
   .about-grid{gap:44px}
-  /* SERVICES on mobile: flat, clean reveal — no 3D depth (it glitches on phones) */
+  /* SERVICES on mobile: fixed-height block, fades up as ONE unit.
+     Details are laid out from the start (just invisible) so the card never
+     changes height = zero layout shift = no bounce. No 3D = no glitch. */
   .svc-grid{grid-template-columns:1fr;gap:16px;perspective:none}
-  .card-item{min-height:auto;padding:36px 28px;transform-style:flat;will-change:auto}
-  .card-item .card-shine{display:none}          /* drop the sheen sweep on mobile */
-  .card-item.shiny-border::after{display:none}  /* drop the spinning border on mobile */
-  .card-item .card-glow{display:none}
-  /* collapsed (resting) state — fades up as a whole */
-  .card-item{opacity:0;transform:translateY(26px);
-    transition:opacity .7s ease,transform .8s cubic-bezier(.22,1,.36,1)}
-  .card-item .c-num{transform:none}
+  .card-item{
+    min-height:auto;padding:36px 28px;transform-style:flat;will-change:auto;
+    opacity:0;transform:translateY(30px);
+    transition:opacity .7s ease,transform .9s cubic-bezier(.16,1,.3,1),background .7s ease,box-shadow .7s ease;
+  }
+  .card-item .card-shine,.card-item.shiny-border::after,.card-item .card-glow{display:none}
+  .card-item .c-num{transform:none;opacity:.45;transition:opacity .6s ease}
   .card-item .c-name{transform:none}
-  .card-item .c-details{transform:none;transition:max-height .7s var(--ease-out) .15s,opacity .55s ease .2s,margin-top .6s ease .15s}
-  .card-item .c-accent{transition:width .8s var(--ease-out) .25s}
-  /* revealed state */
-  .card-item.in-view{opacity:1;transform:translateY(0);background:linear-gradient(160deg,#1f1f1f 0%,#121212 100%);box-shadow:0 16px 38px rgba(0,0,0,.55)}
-  .card-item.in-view .c-num{opacity:1;transform:none;text-shadow:none}
-  .card-item.in-view .c-name{transform:none;border-color:rgba(255,255,255,.5)}
+  /* details always occupy their space; only fade in (no height animation) */
+  .card-item .c-details{transform:none;max-height:none;overflow:visible;opacity:0;margin-top:14px;transition:opacity .6s ease .25s}
+  .card-item .c-accent{transition:width .8s var(--ease-out) .3s}
+  /* revealed */
+  .card-item.in-view{opacity:1;transform:translateY(0);background:linear-gradient(160deg,#1f1f1f 0%,#121212 100%);box-shadow:0 16px 38px rgba(0,0,0,.5)}
+  .card-item.in-view .c-num{opacity:1;text-shadow:none}
+  .card-item.in-view .c-name{border-color:rgba(255,255,255,.5)}
   .card-item.in-view .c-accent{width:100%}
-  .card-item.in-view .c-details{max-height:260px;opacity:1;margin-top:14px}
+  .card-item.in-view .c-details{opacity:.85}
   /* EVENTS: show the tap hint + stack */
   .ev-grid{grid-template-columns:1fr}
   .ev-card{height:420px}
