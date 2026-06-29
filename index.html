@@ -232,6 +232,15 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 .card-item:hover .c-details{max-height:240px;opacity:1;margin-top:14px}
 .c-details li{font-size:.85rem;font-weight:400;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);opacity:.78}
 .c-details li:last-child{border-bottom:none}
+/* scroll-into-view reveal (mobile) — mirrors the desktop hover state */
+.card-item.in-view{background:linear-gradient(160deg,#262626 0%,#141414 100%);box-shadow:0 26px 56px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.16);transform:translateY(-4px) scale(1.012)}
+.card-item.in-view .card-shine{transform:translateX(120%)}
+.card-item.in-view .card-glow{opacity:1;left:50%;top:38%}
+.card-item.in-view .c-accent{width:100%}
+.card-item.in-view .c-num{opacity:1;transform:translateZ(50px) translateY(-6px);text-shadow:0 12px 40px rgba(0,0,0,.8)}
+.card-item.in-view .c-name{border-color:rgba(255,255,255,.6);transform:translateZ(36px)}
+.card-item.in-view .c-details{max-height:240px;opacity:1;margin-top:14px}
+.card-item.in-view.shiny-border::after{opacity:1;animation:bdSpin 3.5s linear infinite}
 
 /* ── TRUSTED - sleek partner cards ───── */
 .partners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px}
@@ -478,12 +487,9 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   a,button{cursor:pointer}
   .about-grid,.contact-grid,.why-grid{grid-template-columns:1fr}
   .about-grid{gap:44px}
-  /* SERVICES: single column, details always visible (no hover on touch) */
+  /* SERVICES: single column; cards reveal on scroll via .in-view (JS) */
   .svc-grid{grid-template-columns:1fr}
   .card-item{min-height:auto;padding:34px 26px}
-  .card-item .c-num{opacity:.5}
-  .card-item .c-details{max-height:none;opacity:1;margin-top:14px}
-  .card-item .c-name{border-color:rgba(255,255,255,.4)}
   /* EVENTS: show the tap hint + stack */
   .ev-grid{grid-template-columns:1fr}
   .ev-card{height:420px}
@@ -729,7 +735,7 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
         <span class="s-tag sr">What We Do</span>
         <h2 class="s-ttl sr2">Our Services</h2>
       </div>
-      <p class="svc-desc sr3">Hover each card to flip and explore what we deliver.</p>
+      <p class="svc-desc sr3">Everything we deliver, end to end.</p>
     </div>
     <div class="svc-grid sr">
       <div class="card-wrap"><div class="card-item shiny-border">
@@ -1101,6 +1107,14 @@ const cio=new IntersectionObserver(es=>{es.forEach(e=>{
   cio.unobserve(el);
 });},{threshold:.5});
 document.querySelectorAll('.stat-n[data-t]').forEach(el=>cio.observe(el));
+
+/* ── TOUCH: trigger service-card reveal on scroll (no hover on phones) ── */
+if(window.matchMedia('(hover: none), (max-width: 768px)').matches){
+  const svcIO=new IntersectionObserver(es=>{
+    es.forEach(e=>e.target.classList.toggle('in-view',e.isIntersecting));
+  },{rootMargin:'-38% 0px -38% 0px',threshold:0});
+  document.querySelectorAll('.card-item').forEach(c=>svcIO.observe(c));
+}
 
 /* ── HERO VIDEO - reveal once it can actually play ── */
 const vid=document.getElementById('hero-video');
