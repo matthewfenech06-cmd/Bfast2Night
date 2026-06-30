@@ -296,16 +296,25 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 
 /* ── CASE STUDY ──────────────────────── */
 #case{position:relative;overflow:hidden;border-top:1px solid var(--border)}
-.case-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.13;filter:grayscale(35%);z-index:0}
-.case-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.78),rgba(0,0,0,.66));z-index:1}
+.case-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;filter:grayscale(25%);z-index:0}
+.case-ov{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.92) 40%,rgba(0,0,0,.7));z-index:1}
 .case-inner{position:relative;z-index:2}
-.case-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:70px;align-items:center}
-.case-points{list-style:none;margin-top:4px}
-.case-points li{display:flex;align-items:flex-start;gap:16px;font-size:1.05rem;font-weight:300;opacity:.82;padding:18px 2px;border-bottom:1px solid var(--border);transition:transform .35s var(--spring),opacity .3s}
+.case-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:center}
+.case-yr-badges{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap}
+.case-yr{font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:2px;opacity:.6;transition:opacity .3s,border-color .3s}
+.case-yr:hover{opacity:1;border-color:rgba(255,255,255,.7)}
+.case-tagline{margin-top:28px;font-size:.9rem;font-weight:300;opacity:.38;line-height:1.7;max-width:320px;letter-spacing:.02em}
+.case-points{list-style:none;display:flex;flex-direction:column;gap:0}
+.case-points li{display:grid;grid-template-columns:48px 1fr;align-items:start;gap:0;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden;transition:transform .35s var(--spring)}
+.case-points li::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--white);transform:scaleY(0);transform-origin:bottom;transition:transform .4s var(--ease-out)}
+.case-points li:hover{transform:translateX(6px)}
+.case-points li:hover::before{transform:scaleY(1)}
 .case-points li:last-child{border-bottom:none}
-.case-points li:hover{transform:translateX(6px);opacity:1}
-.case-chk{font-weight:900;opacity:.55;flex-shrink:0;font-size:1rem;margin-top:1px}
-@media(max-width:768px){.case-grid{grid-template-columns:1fr;gap:28px}.case-points li{font-size:1rem}}
+.case-num{font-size:.58rem;font-weight:700;letter-spacing:.18em;opacity:.25;padding-top:3px;transition:opacity .3s}
+.case-points li:hover .case-num{opacity:.7}
+.case-txt{font-size:1rem;font-weight:400;opacity:.72;line-height:1.55;transition:opacity .3s}
+.case-points li:hover .case-txt{opacity:1}
+@media(max-width:900px){.case-grid{grid-template-columns:1fr;gap:36px}.case-tagline{max-width:100%}}
 
 /* ── WHY MALTA - premium readable cards ── */
 #malta{position:relative;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#141414 0%,#000 60%)}
@@ -355,12 +364,26 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 
 /* ── WHY US ──────────────────────────── */
 #why{position:relative}
-.why-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:72px;border-top:1px solid var(--border)}
-.why-item{display:flex;align-items:flex-start;gap:18px;padding:24px 0;border-bottom:1px solid var(--border);transition:transform .35s var(--spring),background .3s}
-.why-item:hover{transform:translateX(5px)}
-.why-chk{font-weight:900;opacity:.3;flex-shrink:0;margin-top:2px;font-size:1rem;transition:opacity .2s}
-.why-t{font-size:1rem;font-weight:400;letter-spacing:.02em;opacity:.58;transition:opacity .2s;line-height:1.5}
-.why-item:hover .why-chk,.why-item:hover .why-t{opacity:1}
+/* ── WHY US redesign ─────────────────── */
+.why-stats{display:grid;grid-template-columns:repeat(5,1fr);margin-top:72px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.why-stat{padding:40px 28px;border-right:1px solid var(--border);position:relative;overflow:hidden;transition:background .4s}
+.why-stat:last-child{border-right:none}
+.why-stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.04),transparent);opacity:0;transition:opacity .4s}
+.why-stat:hover{background:rgba(255,255,255,.04)}
+.why-stat:hover::before{opacity:1}
+.why-stat-num{font-size:clamp(2.4rem,3.5vw,3.4rem);font-weight:900;line-height:1;letter-spacing:-.03em;display:block;margin-bottom:10px}
+.why-stat-lbl{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.38;line-height:1.5;display:block}
+.why-qual-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:2px;border-left:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 0 4px 4px}
+.why-qual{display:flex;align-items:center;gap:16px;padding:22px 28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);transition:background .3s,transform .35s var(--spring)}
+.why-qual:nth-child(even){border-right:none}
+.why-qual:nth-last-child(-n+2){border-bottom:none}
+.why-qual:hover{background:rgba(255,255,255,.04);transform:translateX(4px)}
+.why-q-arrow{width:20px;height:20px;border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;opacity:.5;transition:opacity .2s,border-color .2s}
+.why-qual:hover .why-q-arrow{opacity:1;border-color:rgba(255,255,255,.7)}
+.why-q-t{font-size:.85rem;font-weight:400;letter-spacing:.02em;opacity:.55;transition:opacity .2s;line-height:1.5}
+.why-qual:hover .why-q-t{opacity:1}
+@media(max-width:900px){.why-stats{grid-template-columns:repeat(3,1fr)}.why-stat:nth-child(3){border-right:none}.why-stat:nth-child(4){border-top:1px solid var(--border)}.why-stat:nth-child(5){border-top:1px solid var(--border)}}
+@media(max-width:600px){.why-stats{grid-template-columns:1fr 1fr}.why-stat{padding:28px 20px}.why-stat:nth-child(odd){border-right:1px solid var(--border)}.why-stat:nth-child(even){border-right:none}.why-stat:nth-child(n+3){border-top:1px solid var(--border)}.why-qual-grid{grid-template-columns:1fr}.why-qual{border-right:none!important}.why-qual:nth-last-child(-n+2){border-bottom:1px solid var(--border)}.why-qual:last-child{border-bottom:none}}
 
 /* ── PARTNER CTA ─────────────────────── */
 #partner{position:relative;overflow:hidden;border-top:1px solid var(--border)}
@@ -892,13 +915,19 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
       <div>
         <span class="s-tag sr">Case Study</span>
         <h2 class="s-ttl sr2">Zamna Malta<br/>Case Study</h2>
+        <div class="case-yr-badges sr2">
+          <span class="case-yr">2024</span>
+          <span class="case-yr">2025</span>
+          <span class="case-yr">2026</span>
+        </div>
+        <p class="case-tagline sr3">Three consecutive editions. One trusted local partner behind every stage, artist, and operation.</p>
       </div>
       <ul class="case-points sr2">
-        <li><span class="case-chk">✓</span>3 consecutive editions</li>
-        <li><span class="case-chk">✓</span>65+ countries reached</li>
-        <li><span class="case-chk">✓</span>Full local operations</li>
-        <li><span class="case-chk">✓</span>Production, logistics, suppliers &amp; artist handling</li>
-        <li><span class="case-chk">✓</span>Government / MTA support experience</li>
+        <li><span class="case-num">01</span><span class="case-txt">3 consecutive editions as the official local operations partner</span></li>
+        <li><span class="case-num">02</span><span class="case-txt">65+ countries reached through Zamna Malta audiences</span></li>
+        <li><span class="case-num">03</span><span class="case-txt">Full end-to-end local operations management</span></li>
+        <li><span class="case-num">04</span><span class="case-txt">Production, logistics, suppliers &amp; artist handling</span></li>
+        <li><span class="case-num">05</span><span class="case-txt">Government &amp; Malta Tourism Authority support experience</span></li>
       </ul>
     </div>
   </div>
@@ -991,17 +1020,35 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
   <div class="container">
     <span class="s-tag sr">Our Track Record</span>
     <h2 class="s-ttl sr2">Why B'Fast2Night</h2>
-    <div class="why-grid sr">
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">7+ Years of Experience in the Events Industry</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">250+ Events Delivered Across Malta</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">60+ International Artists Hosted</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">65+ Countries Represented Through Our Events</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Proven Track Record with Zamna Malta, 3 Consecutive Years</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">International Festival Experience</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Extensive Local Market Knowledge</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Established Relationships with Leading Venues &amp; Suppliers</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">End-to-End Operational Delivery</span></div>
-      <div class="why-item"><span class="why-chk">✓</span><span class="why-t">Single Point of Contact for All Local Operations</span></div>
+    <div class="why-stats sr">
+      <div class="why-stat">
+        <span class="why-stat-num">7+</span>
+        <span class="why-stat-lbl">Years in the<br/>Events Industry</span>
+      </div>
+      <div class="why-stat">
+        <span class="why-stat-num">250+</span>
+        <span class="why-stat-lbl">Events Delivered<br/>Across Malta</span>
+      </div>
+      <div class="why-stat">
+        <span class="why-stat-num">60+</span>
+        <span class="why-stat-lbl">International<br/>Artists Hosted</span>
+      </div>
+      <div class="why-stat">
+        <span class="why-stat-num">65+</span>
+        <span class="why-stat-lbl">Countries<br/>Represented</span>
+      </div>
+      <div class="why-stat">
+        <span class="why-stat-num">3</span>
+        <span class="why-stat-lbl">Years with<br/>Zamna Malta</span>
+      </div>
+    </div>
+    <div class="why-qual-grid sr2">
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">International Festival Experience</span></div>
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">Extensive Local Market Knowledge</span></div>
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">Established Relationships with Leading Venues &amp; Suppliers</span></div>
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">End-to-End Operational Delivery</span></div>
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">Single Point of Contact for All Local Operations</span></div>
+      <div class="why-qual"><span class="why-q-arrow">→</span><span class="why-q-t">Government &amp; Tourism Authority Relations</span></div>
     </div>
   </div>
 </section>
