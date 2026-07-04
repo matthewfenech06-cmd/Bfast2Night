@@ -501,6 +501,25 @@ body:has(a:hover) #cur,body:has(button:hover) #cur,body:has(.ev-card:hover) #cur
 .ev-open .arr{transition:transform .4s var(--spring)}
 .ev-card:hover .ev-open .arr{transform:translateX(5px)}
 
+/* ── EVENTS — premium interactions ───── */
+/* cursor-following spotlight glow */
+.ev-card::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .45s;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.20),transparent 62%);mix-blend-mode:soft-light}
+.ev-card:hover::after{opacity:1}
+/* glassy date + status badges */
+.ev-date,.ev-status{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.ev-card:hover .ev-status{border-color:rgba(255,255,255,.6);background:rgba(0,0,0,.75)}
+/* animated accent line that sweeps under the title on hover */
+.ev-name{position:relative}
+.ev-name::after{content:'';position:absolute;left:0;bottom:-8px;height:2px;width:0;background:linear-gradient(90deg,#fff,transparent);transition:width .55s var(--ease-out) .05s}
+.ev-card:hover .ev-name::after{width:64px}
+/* staggered content lift on hover */
+.ev-tag,.ev-name,.ev-meta{transition:transform .5s var(--spring),opacity .4s}
+.ev-card:hover .ev-tag{opacity:1;transform:translateY(-4px)}
+.ev-card:hover .ev-name{transform:translateY(-4px)}
+.ev-card:hover .ev-meta{opacity:.9;transform:translateY(-3px);transition-delay:.04s}
+.ev-card:hover .ev-tag{transition-delay:0s}
+
 /* ── EVENT MODAL ─────────────────────── */
 #ev-modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
 #ev-modal.open{opacity:1;visibility:visible;transition:opacity .4s}
@@ -880,6 +899,29 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
           <span class="ev-tag">Beach Festival</span>
           <h3 class="ev-name">Zamna On<br/>The Beach</h3>
           <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Palm Beach · Il-Mellieħa, Malta</div>
+          <span class="ev-open">View Details<span class="arr">→</span></span>
+        </div>
+      </div>
+
+      <div class="ev-card"
+        data-tag="Ibiza Debut"
+        data-name="Bongo Porn Ibiza"
+        data-img="https://cdn.glownet.com/events/cover/810/event_cover_BP_IBIZA_1920x640.jpg"
+        data-date="Sun 31 Aug – Mon 1 Sep 2026"
+        data-time="Beach Club & Boat Party"
+        data-venue="Bam Bu Ku Beach Club, Ibiza"
+        data-desc="After years of unforgettable moments in Malta, Bongo Porn makes its official debut on the island that defines the global clubbing scene. Two days across a beach club and a boat party in Ibiza — the signature Bongo energy taken international. Day 1: Bam Bu Ku Beach Club. Day 2: Boat Party. Single day €20, 2-day block ticket €30. 17+."
+        data-lineup="Special Guest TBA"
+        data-link="https://events.tapaygo.com/events/810"
+        data-status="On Sale">
+        <img class="ev-bg" src="https://cdn.glownet.com/events/cover/810/event_cover_BP_IBIZA_1920x640.jpg" alt="Bongo Porn Ibiza" loading="lazy" onerror="this.src='ZAMNA-15052026-KMG-17.jpg'"/>
+        <div class="ev-grad"></div><div class="ev-shine"></div>
+        <div class="ev-date"><span class="d">31</span><span class="m">Aug</span></div>
+        <span class="ev-status">On Sale</span>
+        <div class="ev-body">
+          <span class="ev-tag">Ibiza Debut</span>
+          <h3 class="ev-name">Bongo Porn<br/>Ibiza</h3>
+          <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Bam Bu Ku · Ibiza</div>
           <span class="ev-open">View Details<span class="arr">→</span></span>
         </div>
       </div>
@@ -1487,9 +1529,11 @@ document.querySelectorAll('.card-item').forEach(card=>{
       if(!r)return;
       cancelAnimationFrame(raf);
       raf=requestAnimationFrame(()=>{
-        const x=(e.clientX-r.left)/r.width-.5;
-        const y=(e.clientY-r.top)/r.height-.5;
+        const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+        const x=px-.5, y=py-.5;
         card.style.transform=`rotateY(${x*8}deg) rotateX(${-y*7}deg) translateZ(28px) scale(1.02)`;
+        card.style.setProperty('--mx',(px*100)+'%');
+        card.style.setProperty('--my',(py*100)+'%');
       });
     });
     card.addEventListener('mouseleave',()=>{
