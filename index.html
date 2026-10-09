@@ -1017,6 +1017,30 @@ footer{padding:60px 56px 44px;border-top:1px solid var(--border);display:flex;ju
       </div>
 
       <div class="ev-card"
+        data-tag="B2B Special"
+        data-name="Rodeo — B2B Special"
+        data-img="rodeo-hive.jpg"
+        data-expire="2026-11-07"
+        data-date="Friday 6 November 2026"
+        data-time="Doors open 10PM — free entrance till 11:30PM"
+        data-venue="Hive Club Malta"
+        data-desc="Rodeo returns to Hive with a B2B Special: three head-to-head pairings going round for round all night. Pajsu vs Mux, Miggy vs KK, Fly vs Jade. Doors open 10PM and entrance is free till 11:30PM — come early."
+        data-lineup="Pajsu vs Mux|Miggy vs KK|Fly vs Jade"
+        data-link=""
+        data-status="Free Till 11:30PM">
+        <img class="ev-bg" src="rodeo-hive.jpg" alt="Rodeo B2B Special at Hive Club Malta" loading="lazy" onerror="this.src='ZAMNA-15052026-KMG-44.jpg'"/>
+        <div class="ev-grad"></div><div class="ev-shine"></div>
+        <div class="ev-date"><span class="d">06</span><span class="m">Nov</span></div>
+        <span class="ev-status">Free Till 11:30PM</span>
+        <div class="ev-body">
+          <span class="ev-tag">B2B Special</span>
+          <h3 class="ev-name">Rodeo<br/>B2B Special</h3>
+          <div class="ev-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Hive Club · Malta</div>
+          <span class="ev-open">View Details<span class="arr">→</span></span>
+        </div>
+      </div>
+
+      <div class="ev-card"
         data-tag="Club Night"
         data-name="Braynod — All Night Long"
         data-img="braynod-hive.webp"
@@ -1661,8 +1685,13 @@ document.querySelectorAll('.card-item').forEach(card=>{
       lw.style.display='block';
     }else{lw.style.display='none';}
     const buy=document.getElementById('evm-buy');
-    buy.href=d.link;
-    buy.firstChild.textContent=(d.status==='Info'?'View Event ':'Buy Tickets ');
+    if(d.link&&d.link.trim()){
+      buy.style.display='';
+      buy.href=d.link;
+      buy.firstChild.textContent=(d.status==='Info'?'View Event ':'Buy Tickets ');
+    }else{
+      buy.style.display='none';
+    }
     modal.classList.add('open');
     document.body.style.overflow='hidden';
   }
